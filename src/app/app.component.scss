@@ -1,0 +1,52 @@
+.main-board {
+  border: 1.2em dashed darkslateblue;
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5em;
+  margin-bottom: 1.5em;
+  min-height: 25em;
+
+  button.inactive {
+    cursor: not-allowed;
+  }
+
+  .player-title {
+    margin: auto;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+
+  .card-container {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-item {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5em;
+    border: 2px solid gray;
+    border-radius: 4px;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &.active {
+      border-color: cornflowerblue;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+  }
+
+  .card-img {
+    width: 8em;
+    height: 10em;
+  }
+}

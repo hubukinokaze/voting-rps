@@ -8,15 +8,16 @@
 <div>Card(s) left: {{ deck.length }}</div>
 
 <div class="main-board">
-  <label>{{ player1.username }}'s hand</label>
+  <label class="player-title">{{ player1.username }}'s hand</label>
 
-  <div class="card-container" *ngFor="let card of player1.hand; let index = index" (click)="selectCard(player1, index)">
-    <label>{{ card.name }}</label>
-    <span *ngIf="card.isSelected">>>selected<<</span>
-    <img class="card-img" [src]="card.img">
+  <div class="card-container">
+    <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of player1.hand; let index = index" (click)="selectCard(player1, index)">
+      <label>{{ card.name }}</label>
+      <img class="card-img" [src]="card.img">
+    </div>
   </div>
 
-  <button mat-raised-button color="primary" *ngIf="player1.isSelected" (click)="submit()">
+  <button mat-raised-button color="primary" [ngClass]="{'inactive': !player1.isSelected}" (click)="player1.isSelected ? submit() : null">
     Submit
   </button>
 </div>
@@ -24,10 +25,14 @@
 <div class="main-board">
   <label>{{ player2.username }}'s hand</label>
 
-  <div class="card-container" *ngFor="let card of player2.hand">
-    <label>{{ card.name }}</label>
-    <span *ngIf="card.isSelected && player2.isTurn == true">>>selected<<</span>
+  <div class="card-container">
+    <div class="card-item" [ngClass]="{'active': card.isSelected && player2.isTurn}" *ngFor="let card of player2.hand">
+      <label *ngIf="!player2.isTurn">???</label>
+      <label *ngIf="player2.isTurn">{{ card.name }}</label>
+      <img class="card-img" [src]="card.img">
+    </div>
   </div>
+
 </div>
 
-<button mat-raised-button color="accent">New Game</button>
+<button mat-raised-button color="accent" (click)="startGame()">New Game</button>
