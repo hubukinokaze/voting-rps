@@ -1,0 +1,45 @@
+defaults: &defaults
+  docker:
+    - image: circleci/node:8.11.1
+  working_directory: ~/tmp
+
+version: 2
+jobs:
+  build:
+    docker:
+      - image: node:8.11.1
+    working_directory: ~/tmp
+    steps:
+      - checkout
+      - run:
+          name: Greeting
+          command: echo Hello, world.
+      - run:
+          name: Print the Current Time
+          command: date
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: |
+            npm install @angular/cli@7.3.1 -g
+            npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run:
+          name: Generate static website
+          command: |
+            ng build --prod --aot
+      - run:
+          name: Install awscli
+          command: |
+            apt-get update
+            apt-get install -y python-pip python-dev
+            pip install awscli
+      - run:
+          name: Deploy to S3
+          command: aws s3 sync $AWS_PATH s3://voting-rps/ --delete
