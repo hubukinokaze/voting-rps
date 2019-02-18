@@ -1,3 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import url( 'https://fonts.googleapis.com/css?family=Roboto:400,700|Material+Icons');
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+i.material-icons:before{display:none;}
+
+.c-na {
+  cursor: not-allowed;
+}

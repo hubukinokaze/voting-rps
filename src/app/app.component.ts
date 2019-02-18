@@ -9,11 +9,13 @@ import { MatSnackBar } from "@angular/material";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title: string    = 'Voting RPS';
-  deck: Array<any> = [];
+  title: string     = 'Voting RPS';
+  deck: Array<Card> = [];
+  round: Array<any> = [];
+  roundNumber: number = 0;
   isGameOver: boolean;
-  player1: Player  = new Player();
-  player2: Player  = new Player();
+  player1: Player   = new Player();
+  player2: Player   = new Player();
 
   constructor(private snackBar: MatSnackBar) {
   }
@@ -23,8 +25,14 @@ export class AppComponent {
   }
 
   public startGame() {
-    this.isGameOver = false;
+    this.round      = [2, 2, 2, 2, 2];
+    this.roundNumber = 0;
     this.createDeck();
+    this.nextRound();
+  }
+
+  public nextRound() {
+    this.isGameOver = false;
     this.passCards(this.player1);
     this.passCards(this.player2);
     this.selectCard(this.player2, Math.floor(Math.random() * 3));
@@ -58,9 +66,9 @@ export class AppComponent {
   }
 
   private passCards(player: Player) {
-    player.username = 'Player ' + Math.floor(Math.random() * 1001);
-    player.isSelected   = false;
-    player.hand     = [];
+    player.username   = 'Player ' + Math.floor(Math.random() * 1001);
+    player.isSelected = false;
+    player.hand       = [];
     player.hand.push(this.deck.pop());
     player.hand.push(this.deck.pop());
     player.hand.push(this.deck.pop());
@@ -86,24 +94,30 @@ export class AppComponent {
 
   public submit() {
     if (!this.isGameOver) {
-      let msg = '';
-      let selectedCard = this.player1.hand.filter( (x) => x.isSelected == true)[0].name;
-      let enemySelectedCard = this.player2.hand.filter( (x) => x.isSelected == true)[0].name;
+      let msg               = '';
+      let selectedCard      = this.player1.hand.filter((x) => x.isSelected == true)[0].name;
+      let enemySelectedCard = this.player2.hand.filter((x) => x.isSelected == true)[0].name;
 
       if (selectedCard === enemySelectedCard) {
         msg = 'You tied!';
+        this.round[this.roundNumber] = 0;
       } else if (selectedCard === 'ROCK' && enemySelectedCard === 'PAPER') {
         msg = 'You lose!';
+        this.round[this.roundNumber] = -1;
       } else if (selectedCard === 'PAPER' && enemySelectedCard === 'SCISSOR') {
         msg = 'You lose!';
+        this.round[this.roundNumber] = -1;
       } else if (selectedCard === 'SCISSOR' && enemySelectedCard === 'ROCK') {
         msg = 'You lose!';
+        this.round[this.roundNumber] = -1;
       } else {
         msg = 'You win!';
+        this.round[this.roundNumber] = 1;
       }
+      this.roundNumber++;
       this.player1.isTurn = false;
       this.player2.isTurn = true;
-      this.isGameOver = true;
+      this.isGameOver     = true;
 
       this.snackBar.open(msg, '', {
         duration: 5000,

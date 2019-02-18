@@ -1,38 +1,60 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{title}}!
-  </h1>
-</div>
+<div class="game-container">
+  <div class="background-img"></div>
 
-<div>Card(s) left: {{ deck.length }}</div>
+  <div style="text-align:center">
+    <h1>
+      {{title}}
+    </h1>
+  </div>
 
-<div class="main-board">
-  <label class="player-title">{{ player1.username }}'s hand</label>
+  <div>Card(s) left: {{ deck.length }}</div>
 
-  <div class="card-container">
-    <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of player1.hand; let index = index" (click)="selectCard(player1, index)">
-      <label>{{ card.name }}</label>
-      <img class="card-img" [src]="card.img">
+  <div class="main-board">
+    <label class="player-title">{{ player1.username }}'s hand</label>
+
+    <div class="card-container">
+      <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of player1.hand; let index = index" (click)="selectCard(player1, index)">
+        <label>{{ card.name }}</label>
+        <img class="card-img" [src]="card.img">
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" [ngClass]="{'inactive': !player1.isSelected}" (click)="player1.isSelected ? submit() : null">
+      Submit
+    </button>
+  </div>
+
+  <div class="round-container">
+    <div *ngFor="let score of round">
+      <!-- win -->
+      <mat-icon *ngIf="score == 1">filter_vintage</mat-icon>
+
+      <!-- tie -->
+      <mat-icon *ngIf="score == 0">flare</mat-icon>
+
+      <!-- lose -->
+      <mat-icon *ngIf="score == -1">sentiment_very_dissatisfied</mat-icon>
+
+      <!-- none -->
+      <mat-icon *ngIf="score == 2">nature</mat-icon>
     </div>
   </div>
 
-  <button mat-raised-button color="primary" [ngClass]="{'inactive': !player1.isSelected}" (click)="player1.isSelected ? submit() : null">
-    Submit
-  </button>
-</div>
+  <div class="main-board">
+    <label class="player-title">{{ player2.username }}'s hand</label>
 
-<div class="main-board">
-  <label>{{ player2.username }}'s hand</label>
-
-  <div class="card-container">
-    <div class="card-item" [ngClass]="{'active': card.isSelected && player2.isTurn}" *ngFor="let card of player2.hand">
-      <label *ngIf="!player2.isTurn">???</label>
-      <label *ngIf="player2.isTurn">{{ card.name }}</label>
-      <img class="card-img" [src]="card.img">
+    <div class="card-container">
+      <div class="card-item" [ngClass]="{'active': card.isSelected && player2.isTurn}" *ngFor="let card of player2.hand">
+        <label *ngIf="!player2.isTurn">???</label>
+        <label *ngIf="player2.isTurn">{{ card.name }}</label>
+        <img class="card-img c-na" [src]="card.img">
+      </div>
     </div>
+
   </div>
 
+  <div class="button-container">
+    <button mat-raised-button color="accent" (click)="startGame()">New Game</button>
+    <button mat-raised-button color="primary" *ngIf="deck.length > 1" (click)="nextRound()">Next Round</button>
+  </div>
 </div>
-
-<button mat-raised-button color="accent" (click)="startGame()">New Game</button>
