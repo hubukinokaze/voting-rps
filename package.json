@@ -1,6 +1,6 @@
 {
   "name": "voting-rps",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -10,7 +10,6 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
-  "private": true,
   "dependencies": {
     "@angular-devkit/core": "^7.3.1",
     "@angular/animations": "^7.2.5",
