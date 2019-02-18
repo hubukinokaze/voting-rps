@@ -32,6 +32,7 @@ export class AppComponent {
   }
 
   public nextRound() {
+    window.scrollTo(0,0);
     this.isGameOver = false;
     this.passCards(this.player1);
     this.passCards(this.player2);

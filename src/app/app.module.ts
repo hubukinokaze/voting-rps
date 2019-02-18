@@ -36,6 +36,7 @@ import { MatSnackBarModule }        from '@angular/material/snack-bar';
 import { MatTableModule }           from '@angular/material/table';
 import { MatSortModule }            from '@angular/material/sort';
 import { MatPaginatorModule }       from '@angular/material/paginator';
+import { OverlayContainer }         from "@angular/cdk/overlay";
 
 @NgModule({
   declarations: [
@@ -80,4 +81,7 @@ import { MatPaginatorModule }       from '@angular/material/paginator';
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor(private overlayContainer: OverlayContainer) {
+    overlayContainer.getContainerElement().classList.add('indigo-pink');
+  }
 }
