@@ -1,127 +1,58 @@
-import { Component }   from '@angular/core';
-import { Card }        from "./models/card";
-import { Player }      from "./models/player";
-import { MatSnackBar } from "@angular/material";
+import { Component }                          from '@angular/core';
+import { Card }                               from './models/card';
+import { Player }                             from './models/player';
+import { MatSnackBar }                        from '@angular/material';
+import { BoardService }                       from './services/board.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Game }                               from './models/game';
 
 @Component({
-  selector: 'app-root',
+  selector   : 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls  : ['./app.component.scss']
 })
 export class AppComponent {
-  title: string     = 'Voting RPS';
-  deck: Array<Card> = [];
-  round: Array<any> = [];
-  roundNumber: number = 0;
-  isGameOver: boolean;
-  player1: Player   = new Player();
-  player2: Player   = new Player();
 
-  constructor(private snackBar: MatSnackBar) {
+  // Labels
+  titleLabel: string   = 'Voting RPS';
+  playLabel: string    = 'Play';
+  newGameLabel: string = 'New Game';
+  game: Game;
+  gameForm: FormGroup;
+
+  constructor(private snackBar: MatSnackBar,
+              private boardService: BoardService,
+              private formBuilder: FormBuilder) {
   }
 
   ngOnInit() {
-    this.startGame();
+    this.gameForm = this.formBuilder.group({
+      rounds: ['', [Validators.required, Validators.pattern('^[1-9][0-9]*$'), Validators.max(10)]]
+    });
   }
 
-  public startGame() {
-    this.round      = [2, 2, 2, 2, 2];
-    this.roundNumber = 0;
-    this.createDeck();
-    this.nextRound();
-  }
-
-  public nextRound() {
-    window.scrollTo(0,0);
-    this.isGameOver = false;
-    this.passCards(this.player1);
-    this.passCards(this.player2);
-    this.selectCard(this.player2, Math.floor(Math.random() * 3));
-    this.player1.isTurn = true;
-    this.player2.isTurn = false;
-  }
-
-  private createDeck() {
-    this.deck = [];
-    let count = 0;
-    while (count < 30) {
-      let tempCard = new Card();
-      tempCard.img = './assets/card-img-001.png';
-      let rng      = Math.floor(Math.random() * 3);
-      switch (rng) {
-        case 0:
-          tempCard.name = 'ROCK';
-          break;
-        case 1:
-          tempCard.name = 'PAPER';
-          break;
-        case 2:
-          tempCard.name = 'SCISSOR';
-          break;
-      }
-
-      this.deck.push(tempCard);
-
-      count++;
+  public setRounds() {
+    if (this.gameForm.valid) {
+      this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value);
     }
   }
 
-  private passCards(player: Player) {
-    player.username   = 'Player ' + Math.floor(Math.random() * 1001);
-    player.isSelected = false;
-    player.hand       = [];
-    player.hand.push(this.deck.pop());
-    player.hand.push(this.deck.pop());
-    player.hand.push(this.deck.pop());
-
-    // for (let i of [500, 1000, 1500]) {
-    //   setTimeout((f) => {
-    //     player.hand.push(this.deck.pop());
-    //   }, i);
-    // }
+  public nextRound() {
+    this.boardService.nextRound();
   }
 
   public selectCard(player: Player, index: number) {
-    if (!this.isGameOver) {
-      for (let i = 0; i < player.hand.length; i++) {
-        if (i != index) {
-          player.hand[i].isSelected = false;
-        }
-      }
-      player.hand[index].isSelected = !player.hand[index].isSelected;
-      player.isSelected             = (player.hand[index].isSelected) ? true : false;
+    if (!this.game.isGameOver) {
+      this.boardService.selectCard(player, index);
     }
   }
 
   public submit() {
-    if (!this.isGameOver) {
-      let msg               = '';
-      let selectedCard      = this.player1.hand.filter((x) => x.isSelected == true)[0].name;
-      let enemySelectedCard = this.player2.hand.filter((x) => x.isSelected == true)[0].name;
-
-      if (selectedCard === enemySelectedCard) {
-        msg = 'You tied!';
-        this.round[this.roundNumber] = 0;
-      } else if (selectedCard === 'ROCK' && enemySelectedCard === 'PAPER') {
-        msg = 'You lose!';
-        this.round[this.roundNumber] = -1;
-      } else if (selectedCard === 'PAPER' && enemySelectedCard === 'SCISSOR') {
-        msg = 'You lose!';
-        this.round[this.roundNumber] = -1;
-      } else if (selectedCard === 'SCISSOR' && enemySelectedCard === 'ROCK') {
-        msg = 'You lose!';
-        this.round[this.roundNumber] = -1;
-      } else {
-        msg = 'You win!';
-        this.round[this.roundNumber] = 1;
-      }
-      this.roundNumber++;
-      this.player1.isTurn = false;
-      this.player2.isTurn = true;
-      this.isGameOver     = true;
+    if (!this.game.isGameOver) {
+      const msg = this.boardService.submit();
 
       this.snackBar.open(msg, '', {
-        duration: 5000,
+        duration: 2000,
       });
     }
   }

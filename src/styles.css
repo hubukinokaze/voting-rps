@@ -2,8 +2,27 @@
 @import url( 'https://fonts.googleapis.com/css?family=Roboto:400,700|Material+Icons');
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
+html, body, app-root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
 i.material-icons:before{display:none;}
 
 .c-na {
   cursor: not-allowed;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+  -moz-appearance:textfield; /* Firefox */
 }

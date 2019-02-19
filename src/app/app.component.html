@@ -3,58 +3,68 @@
 
   <div style="text-align:center">
     <h1>
-      {{title}}
+      {{ titleLabel }}
     </h1>
   </div>
 
-  <div>Card(s) left: {{ deck.length }}</div>
+  <form [formGroup]="gameForm">
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="How many rounds...?" type="number" formControlName="rounds">
+    </mat-form-field>
 
-  <div class="main-board">
-    <label class="player-title">{{ player1.username }}'s hand</label>
+    <button mat-raised-button color="primary" (click)="setRounds()">{{ !!game ? newGameLabel : playLabel}}</button>
+  </form>
 
-    <div class="card-container">
-      <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of player1.hand; let index = index" (click)="selectCard(player1, index)">
-        <label>{{ card.name }}</label>
-        <img class="card-img" [src]="card.img">
+  <ng-container *ngIf="!!game">
+    <div>Card(s) left: {{ game.deck.length }}</div>
+
+    <div class="main-board">
+      <label class="player-title">{{ game.player1.username }}'s hand</label>
+
+      <div class="card-container">
+        <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of game.player1.hand; let index = index" (click)="selectCard(game.player1, index)">
+          <label>{{ card.name }}</label>
+          <img class="card-img" [src]="card.img">
+        </div>
+      </div>
+
+      <button mat-raised-button color="primary" [ngClass]="{'inactive': !game.player1.isSelected}" (click)="game.player1.isSelected ? submit() : null">
+        Submit
+      </button>
+    </div>
+
+    <div class="round-container">
+      <div *ngFor="let score of game.roundResults">
+        <!-- win -->
+        <mat-icon *ngIf="score == 1">filter_vintage</mat-icon>
+
+        <!-- tie -->
+        <mat-icon *ngIf="score == 0">flare</mat-icon>
+
+        <!-- lose -->
+        <mat-icon *ngIf="score == -1">sentiment_very_dissatisfied</mat-icon>
+
+        <!-- none -->
+        <mat-icon *ngIf="score == 2">nature</mat-icon>
       </div>
     </div>
 
-    <button mat-raised-button color="primary" [ngClass]="{'inactive': !player1.isSelected}" (click)="player1.isSelected ? submit() : null">
-      Submit
-    </button>
-  </div>
+    <div class="main-board">
+      <label class="player-title">{{ game.player2.username }}'s hand</label>
 
-  <div class="round-container">
-    <div *ngFor="let score of round">
-      <!-- win -->
-      <mat-icon *ngIf="score == 1">filter_vintage</mat-icon>
-
-      <!-- tie -->
-      <mat-icon *ngIf="score == 0">flare</mat-icon>
-
-      <!-- lose -->
-      <mat-icon *ngIf="score == -1">sentiment_very_dissatisfied</mat-icon>
-
-      <!-- none -->
-      <mat-icon *ngIf="score == 2">nature</mat-icon>
-    </div>
-  </div>
-
-  <div class="main-board">
-    <label class="player-title">{{ player2.username }}'s hand</label>
-
-    <div class="card-container">
-      <div class="card-item" [ngClass]="{'active': card.isSelected && player2.isTurn}" *ngFor="let card of player2.hand">
-        <label *ngIf="!player2.isTurn">???</label>
-        <label *ngIf="player2.isTurn">{{ card.name }}</label>
-        <img class="card-img c-na" [src]="card.img">
+      <div class="card-container">
+        <div class="card-item" [ngClass]="{'active': card.isSelected && game.player2.isTurn}" *ngFor="let card of game.player2.hand">
+          <label *ngIf="!game.player2.isTurn">???</label>
+          <label *ngIf="game.player2.isTurn">{{ card.name }}</label>
+          <img class="card-img c-na" [src]="card.img">
+        </div>
       </div>
+
     </div>
 
-  </div>
-
-  <div class="button-container">
-    <button mat-raised-button color="accent" (click)="startGame()">New Game</button>
-    <button mat-raised-button color="primary" *ngIf="deck.length > 1" (click)="nextRound()">Next Round</button>
-  </div>
+    <div class="button-container">
+      <button mat-raised-button color="accent" (click)="startGame()">New Game</button>
+      <button mat-raised-button color="primary" *ngIf="game.deck.length > 1" (click)="nextRound()">Next Round</button>
+    </div>
+  </ng-container>
 </div>
