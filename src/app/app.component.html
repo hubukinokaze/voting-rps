@@ -15,7 +15,7 @@
     <div class="button-container">
       <button mat-raised-button color="primary" *ngIf="!game" (click)="setRounds()">{{ playLabel}}</button>
       <button mat-raised-button color="accent" *ngIf="!!game" (click)="setRounds()">{{ newGameLabel }}</button>
-      <button mat-raised-button color="primary" *ngIf="!!game && game.deck.length > 1" (click)="nextRound()">Next Round</button>
+      <button mat-raised-button color="primary" *ngIf="!!game && game.deck.length > 1 && !game.isGameOver" (click)="nextRound()">Next Round</button>
     </div>
   </form>
 
@@ -70,3 +70,6 @@
     </div>
   </ng-container>
 </div>
+
+<button mat-fab color="primary" class="info-button" (click)="openHelpDialog()"><mat-icon>info</mat-icon></button>
+

@@ -1,9 +1,10 @@
 import { Component }                          from '@angular/core';
 import { Player }                             from './models/player';
-import { MatSnackBar }                        from '@angular/material';
+import { MatDialog, MatSnackBar }             from '@angular/material';
 import { BoardService }                       from './services/board.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Game }                               from './models/game';
+import { GameInfoComponent }                  from './modals/game-info/game-info.component';
 
 @Component({
   selector   : 'app-root',
@@ -21,7 +22,8 @@ export class AppComponent {
 
   constructor(private snackBar: MatSnackBar,
               private boardService: BoardService,
-              private formBuilder: FormBuilder) {
+              private formBuilder: FormBuilder,
+              public dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -56,5 +58,16 @@ export class AppComponent {
         duration: 2000,
       });
     }
+  }
+
+  public openHelpDialog(): void {
+    const dialogRef = this.dialog.open(GameInfoComponent, {
+      width: '250px',
+      data : 234
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
   }
 }

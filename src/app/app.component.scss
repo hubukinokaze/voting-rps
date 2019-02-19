@@ -129,3 +129,18 @@
   min-height: 25em;
   margin: 2em 0;
 }
+
+.info-button {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: fixed;
+  right: 1em;
+  bottom: 1em;
+
+  //mat-icon {
+  //  font-size: 2.1em;
+  //}
+}

@@ -125,6 +125,16 @@ export class BoardService {
       this.game.isGameOver = true;
     }
 
+    this.checkGameOver();
     return msg;
+  }
+
+  private checkGameOver() {
+    console.log(this.game.roundResults.filter(x => x === -1).length);
+    if (this.game.roundResults.filter(x => x === -1).length > this.game.roundSize / 2) {
+      this.game.isGameOver = true;
+    } else if (this.game.roundResults.filter(x => x === 1).length > this.game.roundSize / 2) {
+      this.game.isGameOver = true;
+    }
   }
 }
