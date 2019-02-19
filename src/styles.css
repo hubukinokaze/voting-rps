@@ -4,6 +4,7 @@
 
 html, body, app-root {
   height: 100%;
+  color: #3a3a3a;
 }
 
 body {

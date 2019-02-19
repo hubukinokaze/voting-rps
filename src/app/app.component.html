@@ -7,18 +7,23 @@
     </h1>
   </div>
 
-  <form [formGroup]="gameForm">
-    <mat-form-field class="example-full-width">
+  <form [formGroup]="gameForm" class="form-container">
+    <mat-form-field class="form-input">
       <input matInput placeholder="How many rounds...?" type="number" formControlName="rounds">
     </mat-form-field>
 
-    <button mat-raised-button color="primary" (click)="setRounds()">{{ !!game ? newGameLabel : playLabel}}</button>
+    <div class="button-container">
+      <button mat-raised-button color="primary" *ngIf="!game" (click)="setRounds()">{{ playLabel}}</button>
+      <button mat-raised-button color="accent" *ngIf="!!game" (click)="setRounds()">{{ newGameLabel }}</button>
+      <button mat-raised-button color="primary" *ngIf="!!game && game.deck.length > 1" (click)="nextRound()">Next Round</button>
+    </div>
   </form>
 
   <ng-container *ngIf="!!game">
-    <div>Card(s) left: {{ game.deck.length }}</div>
+    <div class="normal-text">Card(s) left: {{ game.deck.length }}</div>
 
-    <div class="main-board">
+    <!-- BOARD ONE -->
+    <div class="main-board-1">
       <label class="player-title">{{ game.player1.username }}'s hand</label>
 
       <div class="card-container">
@@ -33,6 +38,7 @@
       </button>
     </div>
 
+    <!-- TALLY POINTS -->
     <div class="round-container">
       <div *ngFor="let score of game.roundResults">
         <!-- win -->
@@ -49,7 +55,8 @@
       </div>
     </div>
 
-    <div class="main-board">
+    <!-- BOARD TWO -->
+    <div class="main-board-2">
       <label class="player-title">{{ game.player2.username }}'s hand</label>
 
       <div class="card-container">
@@ -60,11 +67,6 @@
         </div>
       </div>
 
-    </div>
-
-    <div class="button-container">
-      <button mat-raised-button color="accent" (click)="startGame()">New Game</button>
-      <button mat-raised-button color="primary" *ngIf="game.deck.length > 1" (click)="nextRound()">Next Round</button>
     </div>
   </ng-container>
 </div>

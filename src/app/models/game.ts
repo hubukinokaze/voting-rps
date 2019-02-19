@@ -6,7 +6,8 @@ export class Game {
   roundResults: Array<number>;
   roundNumber: number;
   roundSize: number;
+  isRoundOver: boolean;
   isGameOver: boolean;
-  player1: Player     = new Player();
-  player2: Player     = new Player();
+  player1: Player = new Player();
+  player2: Player = new Player();
 }

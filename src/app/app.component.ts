@@ -1,5 +1,4 @@
 import { Component }                          from '@angular/core';
-import { Card }                               from './models/card';
 import { Player }                             from './models/player';
 import { MatSnackBar }                        from '@angular/material';
 import { BoardService }                       from './services/board.service';
@@ -38,17 +37,19 @@ export class AppComponent {
   }
 
   public nextRound() {
-    this.boardService.nextRound();
+    if (this.game.isRoundOver) {
+      this.boardService.nextRound();
+    }
   }
 
   public selectCard(player: Player, index: number) {
-    if (!this.game.isGameOver) {
+    if (!this.game.isRoundOver) {
       this.boardService.selectCard(player, index);
     }
   }
 
   public submit() {
-    if (!this.game.isGameOver) {
+    if (!this.game.isRoundOver) {
       const msg = this.boardService.submit();
 
       this.snackBar.open(msg, '', {

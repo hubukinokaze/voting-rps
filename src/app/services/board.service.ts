@@ -16,6 +16,10 @@ export class BoardService {
     this.game             = new Game();
     this.game.roundNumber = 0;
     this.game.roundSize   = roundSize;
+    this.game.isRoundOver = false;
+    this.game.isGameOver  = false;
+    this.game.player1.username = 'Player ' + Math.floor(Math.random() * 1001);
+    this.game.player2.username = 'Player ' + Math.floor(Math.random() * 1001);
 
     this.setRoundResults(this.game.roundSize);
     this.createDeck();
@@ -58,16 +62,17 @@ export class BoardService {
 
   public nextRound() {
     window.scrollTo(0, 0);
-    this.game.isGameOver = false;
+    this.game.isRoundOver      = false;
+
     this.passCards(this.game.player1);
     this.passCards(this.game.player2);
     this.selectCard(this.game.player2, Math.floor(Math.random() * 3));
+
     this.game.player1.isTurn = true;
     this.game.player2.isTurn = false;
   }
 
   private passCards(player: Player) {
-    player.username   = 'Player ' + Math.floor(Math.random() * 1001);
     player.isSelected = false;
     player.hand       = [];
     player.hand.push(this.game.deck.pop());
@@ -115,7 +120,10 @@ export class BoardService {
     this.game.roundNumber++;
     this.game.player1.isTurn = false;
     this.game.player2.isTurn = true;
-    this.game.isGameOver     = true;
+    this.game.isRoundOver    = true;
+    if (this.game.deck.length === 0) {
+      this.game.isGameOver = true;
+    }
 
     return msg;
   }
