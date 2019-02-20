@@ -98,6 +98,15 @@
     min-height: 7em;
     max-height: 10em;
   }
+
+  .online-players {
+    font-size: 0.9em;
+    margin-right: auto;
+
+    &.positive {
+      color: forestgreen;
+    }
+  }
 }
 
 .main-board-2 {

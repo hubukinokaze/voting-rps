@@ -66,9 +66,6 @@ export class AppComponent {
       console.log('add player: ', member);
       this.players++;
     });
-    this.pusherChannel.bind('client-fire', (obj) => {
-      this.funny = obj;
-    });
     this.pusherChannel.bind('pusher:subscription_succeeded', members => {
       console.log('subscription_succeeded: ', members);
       this.listenForChanges();
@@ -108,7 +105,8 @@ export class AppComponent {
   // helper function to create a unique presence channel
   // name for each game
   getUniqueId() {
-    return 'presence-' + Math.random().toString(36).substr(2, 8);
+    return 'presence-channel';
+    // return 'presence-' + Math.random().toString(36).substr(2, 8);
   }
 
   public setRounds() {

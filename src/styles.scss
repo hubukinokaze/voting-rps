@@ -1,10 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 @import url( 'https://fonts.googleapis.com/css?family=Roboto:400,700|Material+Icons');
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,500,600,700');
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
 html, body, app-root {
   height: 100%;
   color: #3a3a3a;
+  font-family: 'IBM Plex Sans', sans-serif;;
 }
 
 body {
@@ -26,4 +28,8 @@ input::-webkit-inner-spin-button {
 
 input[type=number] {
   -moz-appearance:textfield; /* Firefox */
+}
+
+.spacer {
+  flex-grow: 1;
 }
