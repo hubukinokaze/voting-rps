@@ -5,6 +5,19 @@ const crypto = require("crypto");
 const app = express();
 const Pusher = require('pusher');
 
+
+// START HEROKU
+const path = require('path');
+
+// to serve our JavaScript, CSS and index.html
+app.use(express.static('./dist/'));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/index.html'));
+});
+
+// ENDHEROKU
+
 // CORS
 app.all('/*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
