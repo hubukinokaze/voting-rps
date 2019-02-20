@@ -15,7 +15,7 @@ const pusher = new Pusher({
   key: '94c056c5d4985cdffc49',
   secret: '8af26c844bf2d2e57796',
   cluster: 'us2',
-  encrypted: true
+  useTLS: true
 });
 
 // to serve our JavaScript, CSS and index.html
@@ -45,5 +45,5 @@ app.get('*', (req, res) => {
 });
 
 // start server
-var port = process.env.PORT || 3000;
-app.listen(port, () => console.log('Listening at http://localhost:3000'));
+var port = process.env.PORT || 4200;
+app.listen(port, () => console.log('Listening at http://localhost:', port));

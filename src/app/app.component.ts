@@ -22,15 +22,16 @@ export class AppComponent {
   public newGameLabel: string = 'New Game';
   public game: Game;
   public gameForm: FormGroup;
-  public players: number = 0;
+  public players: number      = 0;
   public id: any;
+  public funny: any           = { data: 'funny' };
 
   constructor(private snackBar: MatSnackBar,
               private boardService: BoardService,
               private formBuilder: FormBuilder,
               public dialog: MatDialog) {
     this.initPusher();
-    this.listenForChanges();
+    // this.listenForChanges();
   }
 
   ngOnInit() {
@@ -54,7 +55,7 @@ export class AppComponent {
     const pusher = new Pusher('94c056c5d4985cdffc49', {
       authEndpoint: '/pusher/auth',
       cluster     : 'us2',
-      forceTLS: true
+      forceTLS    : true
     });
 
     console.log('created pusher: ', pusher);
@@ -65,11 +66,14 @@ export class AppComponent {
       console.log('add player: ', member);
       this.players++;
     });
+    this.pusherChannel.bind('client-fire', (obj) => {
+      this.funny = obj;
+    });
     this.pusherChannel.bind('pusher:subscription_succeeded', members => {
       console.log('subscription_succeeded: ', members);
+      this.listenForChanges();
       this.players = members.count;
       // this.setPlayer(this.players);
-      // this.toastr.success('Success', 'Connected!');
       console.log('connected');
     });
     this.pusherChannel.bind('pusher:member_removed', member => {
@@ -87,6 +91,7 @@ export class AppComponent {
     console.log('listen for fire');
     this.pusherChannel.bind('client-fire', (obj) => {
       console.log('fire received');
+      this.funny = obj;
       // this.canPlay                         = !this.canPlay;
       // this.boards[obj.boardId]             = obj.board;
       // this.boards[obj.player].player.score = obj.score;
@@ -102,7 +107,7 @@ export class AppComponent {
 
   // helper function to create a unique presence channel
   // name for each game
-  getUniqueId () {
+  getUniqueId() {
     return 'presence-' + Math.random().toString(36).substr(2, 8);
   }
 
@@ -133,11 +138,12 @@ export class AppComponent {
       });
 
       console.log('trigger fire');
-      this.pusherChannel.trigger(this.id, 'client-fire', {
-        player: this.game.player1,
-        score: msg,
+      this.pusherChannel.trigger('client-fire', {
+        player : this.game.player1,
+        score  : msg,
         boardId: this.id,
-        board: this.game
+        board  : this.game,
+        data   : 'hello'
       });
     }
   }
