@@ -1,64 +1,16 @@
-// const express = require('express');
-// const bodyParser = require('body-parser');
-// const path = require('path');
-// const Pusher = require('pusher');
-// const crypto = require("crypto");
-//
-// const app = express();
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: false }));
-//
-// // initialise Pusher.
-// // Replace with your credentials from the Pusher Dashboard
-// const pusher = new Pusher({
-//   appId: '716553',
-//   key: '94c056c5d4985cdffc49',
-//   secret: '8af26c844bf2d2e57796',
-//   cluster: 'us2',
-//   useTLS: true
-// });
-//
-// // to serve our JavaScript, CSS and index.html
-// app.use(express.static('./dist/'));
-//
-// // CORS
-// app.all('/*', function(req, res, next) {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Headers", "*");
-//   next();
-// });
-//
-// // endpoint for authenticating client
-// app.post('/pusher/auth', function(req, res) {
-//   let socketId = req.body.socket_id;
-//   let channel = req.body.channel_name;
-//   let presenceData = {
-//     user_id: crypto.randomBytes(16).toString("hex")
-//   };
-//   let auth = pusher.authenticate(socketId, channel, presenceData);
-//   res.send(auth);
-// });
-//
-// // direct all other requests to the built app view
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, './dist/index.html'));
-// });
-//
-// // start server
-// var port = process.env.PORT || 3000;
-// app.listen(port, () => console.log('Listening at http://localhost:', port));
-
-
-
-//
-// pusher.trigger('presence-channel', 'client-fire', {"data": "hello world"});
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require("crypto");
 
 const app = express();
 const Pusher = require('pusher');
+
+// CORS
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  next();
+});
 
 const pusher = new Pusher({
   appId: '716553',
