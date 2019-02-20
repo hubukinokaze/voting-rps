@@ -53,7 +53,8 @@ export class AppComponent {
     // init pusher
     const pusher = new Pusher('94c056c5d4985cdffc49', {
       authEndpoint: '/pusher/auth',
-      cluster     : 'eu'
+      cluster     : 'us2',
+      forceTLS: true
     });
 
     console.log('created pusher: ', pusher);
@@ -132,7 +133,7 @@ export class AppComponent {
       });
 
       console.log('trigger fire');
-      this.pusherChannel.trigger('client-fire', {
+      this.pusherChannel.trigger(this.id, 'client-fire', {
         player: this.game.player1,
         score: msg,
         boardId: this.id,
