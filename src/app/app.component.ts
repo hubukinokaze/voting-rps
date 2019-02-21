@@ -69,9 +69,8 @@ export class AppComponent {
     });
 
     // listen for chat messages
-    this.pusherChannel.bind('client-chat', chat => {
-      console.log(chat.chat);
-      this.messages.push(chat.chat);
+    this.pusherChannel.bind('client-chat', data => {
+      this.messages = data.chat;
     });
 
     // listen for successful connection to channel
