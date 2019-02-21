@@ -70,10 +70,29 @@
     </div>
   </ng-container>
 
+  <div class="chat-container">
+    <label>Chat</label>
+    <ng-container *ngIf="messages && messages.length > 0">
+      <div *ngFor="let item of messages">{{ item.userId }}: {{ item.message }}</div>
+    </ng-container>
+
+    <form [formGroup]="chatForm" class="form-container">
+      <mat-form-field class="form-input">
+        <input matInput placeholder="Enter message..." formControlName="chatMessage">
+      </mat-form-field>
+
+      <div class="button-container">
+        <button mat-raised-button color="primary" (click)="sendChat()">Send</button>
+      </div>
+    </form>
+  </div>
+
   <div class="spacer"></div>
   <div class="online-players" [ngClass]="{'positive': players > 1}">Online: {{ players }}</div>
   <div class="online-players">Player Id: {{ user?.id || 'N/A' }}</div>
   <div class="online-players">Channel Id: {{ channelId }}</div>
 </div>
+
+
 
 <button mat-fab color="primary" class="info-button" (click)="openHelpDialog()"><mat-icon>info</mat-icon></button>

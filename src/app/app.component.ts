@@ -22,9 +22,11 @@ export class AppComponent {
 
   public game: Game;
   public gameForm: FormGroup;
-  public players: number = 0;
+  public chatForm: FormGroup;
+  public players: number         = 0;
   public channelId: string;
-  public user: Player = new Player();
+  public messages: Array<any> = [];
+  public user: Player            = new Player();
 
   constructor(private snackBar: MatSnackBar,
               private boardService: BoardService,
@@ -38,6 +40,10 @@ export class AppComponent {
     this.gameForm = this.formBuilder.group({
       rounds: ['', [Validators.required, Validators.pattern('^[1-9][0-9]*$'), Validators.max(10)]]
     });
+
+    this.chatForm = this.formBuilder.group({
+      chatMessage: ['', [Validators.required]]
+    });
   }
 
   // initialise Pusher and bind to presence channel
@@ -46,22 +52,26 @@ export class AppComponent {
     // findOrCreate unique channel ID
     let channelId = this.pusherService.getChannelId('id');
     if (!channelId) {
-      channelId              = this.pusherService.getUniqueId();
+      channelId       = this.pusherService.getUniqueId();
       location.search = location.search ? '&id=' + channelId : 'id=' + channelId;
     }
     this.channelId = channelId;
 
     // init pusher
     const pusher = this.pusherService.getPusher();
-    console.log(pusher);
 
     // subscribe to channel
     this.pusherChannel = pusher.subscribe(this.channelId);
 
-    console.log(this.pusherChannel);
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
       this.players++;
+    });
+
+    // listen for chat messages
+    this.pusherChannel.bind('client-chat', chat => {
+      console.log(chat.chat);
+      this.messages.push(chat.chat);
     });
 
     // listen for successful connection to channel
@@ -136,5 +146,25 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe(result => {
     });
+  }
+
+  public sendChat() {
+    if (this.chatForm.valid) {
+      const id = !!this.user.id ? this.user.id : 'Anon';
+      const tempMsg = {
+        userId: id,
+        message: this.chatForm.controls['chatMessage'].value
+      };
+      this.messages.push(tempMsg);
+      this.chatForm.controls['chatMessage'].reset();
+      this.chatForm.controls['chatMessage'].markAsPristine();
+      this.chatForm.controls['chatMessage'].markAsUntouched();
+      this.chatForm.controls['chatMessage'].clearValidators();
+      this.chatForm.reset();
+
+      this.pusherChannel.trigger('client-chat', {
+        chat: this.messages
+      });
+    }
   }
 }
