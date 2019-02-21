@@ -66,9 +66,12 @@ export class AppComponent {
     // listen for successful connection to channel
     this.pusherChannel.bind('pusher:subscription_succeeded', members => {
       console.log('subscription_succeeded: ', members);
-      this.user.id = members.myID;
+
       this.listenForChanges();
       this.players = members.count;
+      if (this.players && members.myID) {
+        this.user.id = members.myID;
+      }
       // this.setPlayer(this.players);
     });
 
