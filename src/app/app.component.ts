@@ -58,6 +58,7 @@ export class AppComponent {
     // subscribe to channel
     this.pusherChannel = pusher.subscribe(this.channelId);
 
+    console.log(this.pusherChannel);
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
       this.players++;
@@ -69,9 +70,9 @@ export class AppComponent {
 
       this.listenForChanges();
       this.players = members.count;
-      if (this.players && members.myID) {
-        this.user.id = members.myID;
-      }
+      // if (this.players && members.myID) {
+      //   this.user.id = members.myID;
+      // }
       // this.setPlayer(this.players);
     });
 
