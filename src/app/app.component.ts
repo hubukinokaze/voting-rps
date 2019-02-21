@@ -70,9 +70,9 @@ export class AppComponent {
 
       this.listenForChanges();
       this.players = members.count;
-      // if (this.players && members.myID) {
-      //   this.user.id = members.myID;
-      // }
+      if (this.players && members.myID) {
+        this.user.id = members.myID;
+      }
       // this.setPlayer(this.players);
     });
 
