@@ -73,19 +73,19 @@
     flex-flow: column nowrap;
     align-items: center;
     justify-content: center;
-    margin: 1.5em;
+    margin: 0.5em 1em;
     border: 2px solid gray;
     border-radius: 4px;
     box-sizing: border-box;
     cursor: pointer;
 
     &.active {
-      border-color: cornflowerblue;
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      border-color: #4cccff;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.8), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
     }
 
     &:hover {
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6), 0 6px 20px 0 rgba(0, 0, 0, 0.7);
 
     }
   }
@@ -125,7 +125,7 @@
 }
 
 .main-board-1 {
-  border: 1.2em dashed darkslateblue;
+  border: 1.2em dashed #4f4398;
   border-radius: 4px;
   box-sizing: border-box;
   width: 100%;
@@ -152,4 +152,15 @@
   //mat-icon {
   //  font-size: 2.1em;
   //}
+}
+
+
+@media only screen and (max-width: 500px) {
+  .game-container {
+    .card-img {
+      min-width: 5em;
+      max-width: 5em;
+    }
+  }
+
 }
