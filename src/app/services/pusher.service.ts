@@ -26,6 +26,7 @@ export class PusherService {
   // helper function to create a unique presence channel
   // name for each game
   getUniqueId() {
-    return 'presence-' + Math.random().toString(36).substr(2, 8);
+    return 'presence-channel';
+    // return 'presence-' + Math.random().toString(36).substr(2, 8);
   }
 }
