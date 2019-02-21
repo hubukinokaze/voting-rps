@@ -68,6 +68,10 @@ export class AppComponent {
       this.pusherChannel.trigger('client-chat', {
         chat: this.messages
       });
+
+      this.pusherChannel.trigger('client-fire', {
+        game: this.game
+      });
       this.players++;
     });
 
@@ -100,10 +104,8 @@ export class AppComponent {
   // Update the board object and other properties when
   // event triggered
   private listenForChanges(): AppComponent {
-    this.pusherChannel.bind('client-fire', (obj) => {
-      // this.canPlay                         = !this.canPlay;
-      // this.boards[obj.boardId]             = obj.board;
-      // this.boards[obj.player].player.score = obj.score;
+    this.pusherChannel.bind('client-fire', (data) => {
+      this.game = data.game;
     });
     return this;
   }
