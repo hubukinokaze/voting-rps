@@ -52,6 +52,7 @@ export class AppComponent {
 
     // init pusher
     const pusher = this.pusherService.getPusher();
+    console.log(pusher);
 
     // subscribe to channel
     this.pusherChannel = pusher.subscribe(this.channelId);
