@@ -24,6 +24,7 @@ export class AppComponent {
   public gameForm: FormGroup;
   public players: number = 0;
   public channelId: string;
+  public user: Player = new Player();
 
   constructor(private snackBar: MatSnackBar,
               private boardService: BoardService,
@@ -65,7 +66,7 @@ export class AppComponent {
     // listen for successful connection to channel
     this.pusherChannel.bind('pusher:subscription_succeeded', members => {
       console.log('subscription_succeeded: ', members);
-      this.game.player1.id = members.id;
+      this.user.id = members.myID;
       this.listenForChanges();
       this.players = members.count;
       // this.setPlayer(this.players);
