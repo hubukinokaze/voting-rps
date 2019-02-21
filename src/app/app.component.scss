@@ -154,6 +154,13 @@
   //}
 }
 
+.chat-container {
+  .messages-container {
+    max-height: 10em;
+    overflow: auto;
+  }
+}
+
 
 @media only screen and (max-width: 500px) {
   .game-container {

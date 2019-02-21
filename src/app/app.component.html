@@ -72,9 +72,9 @@
 
   <div class="chat-container">
     <label>Chat</label>
-    <ng-container *ngIf="messages && messages.length > 0">
+    <div #messagesContainer class="messages-container" *ngIf="messages && messages.length > 0" [scrollTop]="messagesContainer.scrollHeight">
       <div *ngFor="let item of messages">{{ item.userId }}: {{ item.message }}</div>
-    </ng-container>
+    </div>
 
     <form [formGroup]="chatForm" class="form-container">
       <mat-form-field class="form-input">

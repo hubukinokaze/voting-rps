@@ -65,6 +65,9 @@ export class AppComponent {
 
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
+      this.pusherChannel.trigger('client-chat', {
+        chat: this.messages
+      });
       this.players++;
     });
 
