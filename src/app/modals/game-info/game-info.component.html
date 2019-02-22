@@ -15,3 +15,16 @@
   <mat-list-item role="listitem">Rock > Scissors</mat-list-item>
   <mat-list-item role="listitem">Scissors > Paper</mat-list-item>
 </mat-list>
+
+<h3>
+  Settings
+</h3>
+
+<mat-list role="list">
+  <mat-list-item role="listitem" class="settings-item">
+    <mat-icon>{{ !audioService.getIsAudioOn() ? audioOnIcon : audioOffIcon }}</mat-icon>
+    <span>{{ audioService.getIsAudioOn() ? audioOnLabel : audioOffLabel }}</span>
+    <div class="spacer"></div>
+    <mat-slide-toggle class="example-margin" color="primary" [checked]="audioService.getIsAudioOn()" (change)="audioService.toggleIsAudioOn($event.checked)"></mat-slide-toggle>
+  </mat-list-item>
+</mat-list>

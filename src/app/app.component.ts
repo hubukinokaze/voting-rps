@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Game }                               from './models/game';
 import { GameInfoComponent }                  from './modals/game-info/game-info.component';
 import { PusherService }                      from './services/pusher.service';
+import { AudioService }                       from './services/audio.service';
 
 @Component({
   selector   : 'app-root',
@@ -31,6 +32,7 @@ export class AppComponent {
   constructor(private snackBar: MatSnackBar,
               private boardService: BoardService,
               private pusherService: PusherService,
+              public audioService: AudioService,
               private formBuilder: FormBuilder,
               public dialog: MatDialog) {
     this.initPusher();
@@ -77,6 +79,7 @@ export class AppComponent {
 
     // listen for chat messages
     this.pusherChannel.bind('client-chat', data => {
+      this.audioService.receiveMsgAudio();
       this.messages = data.chat;
     });
 
@@ -112,6 +115,7 @@ export class AppComponent {
 
   public setRounds() {
     if (this.gameForm.valid) {
+      this.audioService.startAudio();
       this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value);
     }
   }
