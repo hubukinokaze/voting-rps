@@ -1,7 +1,8 @@
-import { Card } from "./card";
+import { Card } from './card';
 
 export class Player {
   id: string;
+  playerId: number;
   username: string;
   img: string;
   rank: number;

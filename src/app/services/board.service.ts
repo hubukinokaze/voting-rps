@@ -12,14 +12,14 @@ export class BoardService {
   constructor() {
   }
 
-  public startGame(roundSize: number): Game {
+  public startGame(roundSize: number, user1: Player, user2: Player): Game {
     this.game             = new Game();
     this.game.roundNumber = 0;
     this.game.roundSize   = roundSize;
     this.game.isRoundOver = false;
     this.game.isGameOver  = false;
-    this.game.player1.username = 'Player ' + Math.floor(Math.random() * 1001);
-    this.game.player2.username = 'Player ' + Math.floor(Math.random() * 1001);
+    this.game.players = [user1, user2];
+    // this.game.player1.username = 'Player ' + Math.floor(Math.random() * 1001);
 
     this.setRoundResults(this.game.roundSize);
     this.createDeck();
@@ -64,12 +64,12 @@ export class BoardService {
     window.scrollTo(0, 0);
     this.game.isRoundOver      = false;
 
-    this.passCards(this.game.player1);
-    this.passCards(this.game.player2);
-    this.selectCard(this.game.player2, Math.floor(Math.random() * 3));
+    this.passCards(this.game.players[0]);
+    this.passCards(this.game.players[1]);
+    // this.selectCard(this.game.player2, Math.floor(Math.random() * 3));
 
-    this.game.player1.isTurn = true;
-    this.game.player2.isTurn = false;
+    this.game.players[0].isTurn = true;
+    this.game.players[1].isTurn = true;
   }
 
   private passCards(player: Player) {
@@ -96,10 +96,11 @@ export class BoardService {
     player.isSelected             = (player.hand[index].isSelected) ? true : false;
   }
 
-  public submit() {
+  public submit(game: Game) {
+    this.game = game;
     let msg                 = '';
-    const selectedCard      = this.game.player1.hand.filter((x) => x.isSelected === true)[0].name;
-    const enemySelectedCard = this.game.player2.hand.filter((x) => x.isSelected === true)[0].name;
+    const selectedCard      = this.game.players[0].hand.filter((x) => x.isSelected === true)[0].name;
+    const enemySelectedCard = this.game.players[1].hand.filter((x) => x.isSelected === true)[0].name;
 
     if (selectedCard === enemySelectedCard) {
       msg                                           = 'You tied!';
@@ -118,15 +119,12 @@ export class BoardService {
       this.game.roundResults[this.game.roundNumber] = 1;
     }
     this.game.roundNumber++;
-    this.game.player1.isTurn = false;
-    this.game.player2.isTurn = true;
     this.game.isRoundOver    = true;
     if (this.game.deck.length === 0) {
       this.game.isGameOver = true;
     }
-
     this.checkGameOver();
-    return msg;
+    return {game: this.game, msg: msg};
   }
 
   private checkGameOver() {

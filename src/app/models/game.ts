@@ -9,6 +9,5 @@ export class Game {
   roundSize: number;
   isRoundOver: boolean;
   isGameOver: boolean;
-  player1: Player = new Player();
-  player2: Player = new Player();
+  players: Array<Player>;
 }

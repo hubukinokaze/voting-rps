@@ -24,10 +24,12 @@ export class AppComponent {
   public game: Game;
   public gameForm: FormGroup;
   public chatForm: FormGroup;
+  public player: number       = 0;
   public players: number      = 0;
   public channelId: string;
   public messages: Array<any> = [];
   public user: Player         = new Player();
+  public randomUser: Player   = new Player();
   public isLoading: boolean;
 
   @ViewChild('messagesContainer') private messagesContainer: ElementRef;
@@ -66,20 +68,42 @@ export class AppComponent {
     // init pusher
     const pusher = this.pusherService.getPusher();
 
+    // handle error
+    pusher.connection.bind('error', (err) => {
+      this.isLoading = false;
+      const msg      = 'Could not connect. Check your wifi.';
+      this.openSnackBar(msg);
+    });
+
     // subscribe to channel
     this.pusherChannel = pusher.subscribe(this.channelId);
+
+    // handle error
+    this.pusherChannel.bind('pusher:connection_failed', err => {
+      this.isLoading = false;
+      const msg      = 'Could not connect. Check your wifi.';
+      this.openSnackBar(msg);
+    });
 
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
       this.isLoading = true;
+      console.log('new player arrived');
+
       this.pusherChannel.trigger('client-chat', {
         chat: this.messages
       });
 
-      this.pusherChannel.trigger('client-fire', {
-        game: this.game
-      });
       this.players++;
+
+      // check if its the second player
+      if (this.players === 2) {
+        this.randomUser.id       = member.id;
+        this.randomUser.playerId = this.player++;
+        this.randomUser.username = 'Second Player';
+        this.player              = 0;
+      }
+
       this.isLoading = false;
     });
 
@@ -101,7 +125,9 @@ export class AppComponent {
       this.listenForChanges();
       this.players = members.count;
       if (this.players && members.myID) {
-        this.user.id = members.myID;
+        this.user.id       = members.myID;
+        this.user.playerId = this.player++;
+        this.user.username = 'Player 1';
       }
       this.isLoading = false;
       // this.setPlayer(this.players);
@@ -109,6 +135,18 @@ export class AppComponent {
 
     // listen for players leaving
     this.pusherChannel.bind('pusher:member_removed', member => {
+      if (this.game) {
+        const x = this.game.players.filter((p: Player) => {
+          return p.id === member.id;
+        });
+
+        if (x.length > 0) {
+          this.game.isGameOver = true;
+          const msg            = 'Enemy left. You win.';
+
+          this.openSnackBar(msg);
+        }
+      }
       this.players--;
     });
 
@@ -119,10 +157,36 @@ export class AppComponent {
   // Update the board object and other properties when
   // event triggered
   private listenForChanges(): AppComponent {
+    this.pusherChannel.bind('client-start-game', (data) => {
+      if (!this.game) {
+        this.isLoading = true;
+        this.game      = data.game;
+        this.randomUser = this.game.players.filter( (p) => {
+          return p.id !== this.user.id;
+        })[0];
+        this.isLoading = false;
+      }
+    });
+
     this.pusherChannel.bind('client-fire', (data) => {
-      this.isLoading = true;
-      this.game = data.game;
-      this.isLoading = false;
+      if (this.game) {
+        this.isLoading = true;
+        this.game      = data.game;
+        if (!this.game.players[this.player].isTurn) {
+          const msg = this.boardService.submit(this.game);
+          this.game = msg.game;
+          this.openSnackBar(msg.msg);
+        }
+        this.isLoading = false;
+      }
+    });
+
+    this.pusherChannel.bind('client-select-card', (data) => {
+      if (this.game) {
+        this.isLoading = true;
+        this.boardService.selectCard(this.game.players[data.playerId], data.index);
+        this.isLoading = false;
+      }
     });
     return this;
   }
@@ -130,34 +194,55 @@ export class AppComponent {
   public setRounds() {
     if (this.gameForm.valid && this.players > 1) {
       this.audioService.startAudio();
-      this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value);
+      this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+
+      this.pusherChannel.trigger('client-start-game', {
+        game: this.game
+      });
     } else if (this.gameForm.valid && this.players === 1) {
       const msg = 'Need 1 more player';
+      this.openSnackBar(msg);
+    } else if (!this.gameForm.valid) {
+      const msg = 'Enter a valid number';
       this.openSnackBar(msg);
     }
   }
 
   public nextRound() {
-    if (this.game.isRoundOver) {
-      this.boardService.nextRound();
-    }
+    this.boardService.nextRound();
+    this.pusherChannel.trigger('client-fire', {
+      game: this.game
+    });
   }
 
   public selectCard(player: Player, index: number) {
     if (!this.game.isRoundOver) {
       this.boardService.selectCard(player, index);
+
+      this.pusherChannel.trigger('client-select-card', {
+        playerId: player.playerId,
+        index   : index
+      });
     }
   }
 
   public submit() {
     if (!this.game.isRoundOver) {
-      const msg = this.boardService.submit();
+      this.game.players[this.player].isTurn = false;
+
+      const msg = 'Locked in';
 
       this.openSnackBar(msg);
 
       this.pusherChannel.trigger('client-fire', {
         game: this.game
       });
+
+      if (!this.game.players[this.randomUser.playerId].isTurn) {
+        const msg2 = this.boardService.submit(this.game);
+        this.game = msg2.game;
+        this.openSnackBar(msg2.msg);
+      }
     }
   }
 
@@ -199,7 +284,7 @@ export class AppComponent {
     }, 100);
   }
 
-  private openSnackBar(msg) {
+  private openSnackBar(msg: string) {
     this.snackBar.open(msg, '', {
       duration: 2000,
     });
