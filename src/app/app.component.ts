@@ -1,4 +1,4 @@
-import { Component }                          from '@angular/core';
+import { Component, ElementRef, ViewChild }   from '@angular/core';
 import { Player }                             from './models/player';
 import { MatDialog, MatSnackBar }             from '@angular/material';
 import { BoardService }                       from './services/board.service';
@@ -24,10 +24,12 @@ export class AppComponent {
   public game: Game;
   public gameForm: FormGroup;
   public chatForm: FormGroup;
-  public players: number         = 0;
+  public players: number      = 0;
   public channelId: string;
   public messages: Array<any> = [];
-  public user: Player            = new Player();
+  public user: Player         = new Player();
+
+  @ViewChild('messagesContainer') private messagesContainer: ElementRef;
 
   constructor(private snackBar: MatSnackBar,
               private boardService: BoardService,
@@ -79,8 +81,11 @@ export class AppComponent {
 
     // listen for chat messages
     this.pusherChannel.bind('client-chat', data => {
-      this.audioService.receiveMsgAudio();
-      this.messages = data.chat;
+      if (data.chat.length > 0 && this.messages.length !== data.chat.length) {
+        this.audioService.receiveMsgAudio();
+        this.messages = data.chat;
+        this.autoScroll();
+      }
     });
 
     // listen for successful connection to channel
@@ -158,21 +163,29 @@ export class AppComponent {
 
   public sendChat() {
     if (this.chatForm.valid) {
-      const id = !!this.user.id ? this.user.id : 'Anon';
+      const id      = !!this.user.id ? this.user.id : 'Anon';
       const tempMsg = {
-        userId: id,
+        userId : id,
         message: this.chatForm.controls['chatMessage'].value
       };
       this.messages.push(tempMsg);
       this.chatForm.controls['chatMessage'].reset();
-      this.chatForm.controls['chatMessage'].markAsPristine();
-      this.chatForm.controls['chatMessage'].markAsUntouched();
-      this.chatForm.controls['chatMessage'].clearValidators();
-      this.chatForm.reset();
+      // this.chatForm.controls['chatMessage'].markAsPristine();
+      // this.chatForm.controls['chatMessage'].markAsUntouched();
+      // this.chatForm.controls['chatMessage'].clearValidators();
+      // this.chatForm.reset();
 
+      this.autoScroll();
       this.pusherChannel.trigger('client-chat', {
         chat: this.messages
       });
+
     }
+  }
+
+  public autoScroll() {
+    setTimeout((f) => {
+      this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
+    }, 100);
   }
 }

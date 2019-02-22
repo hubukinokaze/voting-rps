@@ -71,9 +71,10 @@
     </div>
   </ng-container>
 
+  <!-- Start Chat -->
   <div class="chat-container">
     <label>Chat</label>
-    <div #messagesContainer class="messages-container" *ngIf="messages && messages.length > 0" [scrollTop]="messagesContainer.scrollHeight">
+    <div #messagesContainer class="messages-container" *ngIf="messages && messages.length > 0">
       <div *ngFor="let item of messages">{{ item.userId }}: {{ item.message }}</div>
     </div>
 
@@ -87,6 +88,7 @@
       </div>
     </form>
   </div>
+  <!-- End Chat -->
 
   <div class="spacer"></div>
   <div class="online-players" [ngClass]="{'positive': players > 1}">Online: {{ players }}</div>
