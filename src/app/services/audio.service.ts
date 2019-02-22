@@ -5,9 +5,11 @@ import { Injectable } from '@angular/core';
 })
 export class AudioService {
   private audio: any;
+  private bgAudio: any;
   private isAudioOn: boolean;
 
   // audio src
+  private bgAudioSrc: string;
   private startAudioSrc: string;
   private receiveMsgAudioSrc: string;
   private loseAudioSrc: string;
@@ -15,10 +17,17 @@ export class AudioService {
 
   constructor() {
     this.setAudios();
+
+    this.bgAudio.src = this.bgAudioSrc;
+    this.bgAudio.load();
+    this.bgAudio.loop = true;
+    this.bgAudio.volume = 0.01;
+    this.bgAudio.play();
   }
 
   public toggleIsAudioOn(isAudioOn: boolean) {
     this.isAudioOn = isAudioOn;
+    this.bgAudio.muted = !isAudioOn;
   }
 
   public getIsAudioOn(): boolean {
@@ -44,9 +53,11 @@ export class AudioService {
   }
 
   private setAudios() {
+    this.bgAudio   = new Audio();
     this.audio     = new Audio();
     this.isAudioOn = true;
 
+    this.bgAudioSrc         = './assets/audio/bg.mp3';
     this.startAudioSrc      = './assets/audio/start.wav';
     this.receiveMsgAudioSrc = './assets/audio/receiveMsg.wav';
   }

@@ -128,9 +128,12 @@ export class AppComponent {
   }
 
   public setRounds() {
-    if (this.gameForm.valid) {
+    if (this.gameForm.valid && this.players > 1) {
       this.audioService.startAudio();
       this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value);
+    } else if (this.gameForm.valid && this.players === 1) {
+      const msg = 'Need 1 more player';
+      this.openSnackBar(msg);
     }
   }
 
@@ -150,9 +153,7 @@ export class AppComponent {
     if (!this.game.isRoundOver) {
       const msg = this.boardService.submit();
 
-      this.snackBar.open(msg, '', {
-        duration: 2000,
-      });
+      this.openSnackBar(msg);
 
       this.pusherChannel.trigger('client-fire', {
         game: this.game
@@ -196,5 +197,11 @@ export class AppComponent {
     setTimeout((f) => {
       this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
     }, 100);
+  }
+
+  private openSnackBar(msg) {
+    this.snackBar.open(msg, '', {
+      duration: 2000,
+    });
   }
 }
