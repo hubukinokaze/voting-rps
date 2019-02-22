@@ -10,6 +10,8 @@ export class AudioService {
   // audio src
   private startAudioSrc: string;
   private receiveMsgAudioSrc: string;
+  private loseAudioSrc: string;
+  private winAudioSrc: string;
 
   constructor() {
     this.setAudios();

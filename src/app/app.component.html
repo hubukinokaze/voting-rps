@@ -1,99 +1,102 @@
-<div class="game-container">
+<div class="game-body">
   <div class="background-img"></div>
+  <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
 
-  <div style="text-align:center">
-    <h1>
-      {{ titleLabel }}
-    </h1>
-  </div>
-
-  <form [formGroup]="gameForm" class="form-container">
-    <mat-form-field class="form-input">
-      <input matInput placeholder="How many rounds...?" type="number" formControlName="rounds">
-    </mat-form-field>
-
-    <div class="button-container">
-      <button mat-raised-button color="primary" *ngIf="!game" (click)="setRounds()">{{ playLabel}}</button>
-      <button mat-raised-button color="accent" *ngIf="!!game" (click)="setRounds()">{{ newGameLabel }}</button>
-      <!--<button mat-raised-button color="primary" *ngIf="!!game && game.deck.length > 1 && !game.isGameOver" (click)="nextRound()">Next Round</button>-->
-    </div>
-  </form>
-
-  <ng-container *ngIf="!!game">
-    <div class="normal-text">Card(s) left: {{ game.deck.length }}</div>
-
-    <!-- BOARD ONE -->
-    <div class="main-board-1">
-      <label class="player-title">{{ game.player1.username }}'s hand</label>
-
-      <div class="card-container">
-        <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of game.player1.hand; let index = index" (click)="selectCard(game.player1, index)">
-          <label>{{ card.name }}</label>
-          <img class="card-img" [src]="card.img">
-        </div>
-      </div>
-
-      <button mat-raised-button color="primary" *ngIf="game.player1.isSelected && game.player1.isTurn" [ngClass]="{'inactive': !game.player1.isSelected}" (click)="game.player1.isSelected ? submit() : null">
-        Submit
-      </button>
-      <button mat-raised-button color="primary" *ngIf="!game.player1.isTurn" (click)="nextRound()">Next Round</button>
+  <div class="game-container">
+    <div style="text-align:center">
+      <h1>
+        {{ titleLabel }}
+      </h1>
     </div>
 
-    <!-- TALLY POINTS -->
-    <div class="round-container">
-      <div *ngFor="let score of game.roundResults">
-        <!-- win -->
-        <mat-icon *ngIf="score == 1">filter_vintage</mat-icon>
-
-        <!-- tie -->
-        <mat-icon *ngIf="score == 0">flare</mat-icon>
-
-        <!-- lose -->
-        <mat-icon *ngIf="score == -1">sentiment_very_dissatisfied</mat-icon>
-
-        <!-- none -->
-        <mat-icon *ngIf="score == 2">nature</mat-icon>
-      </div>
-    </div>
-
-    <!-- BOARD TWO -->
-    <div class="main-board-2">
-      <label class="player-title">{{ game.player2.username }}'s hand</label>
-
-      <div class="card-container">
-        <div class="card-item" [ngClass]="{'active': card.isSelected && game.player2.isTurn}" *ngFor="let card of game.player2.hand">
-          <label *ngIf="!game.player2.isTurn">???</label>
-          <label *ngIf="game.player2.isTurn">{{ card.name }}</label>
-          <img class="card-img c-na" [src]="card.img">
-        </div>
-      </div>
-
-    </div>
-  </ng-container>
-
-  <!-- Start Chat -->
-  <div class="chat-container">
-    <label>Chat</label>
-    <div #messagesContainer class="messages-container" *ngIf="messages && messages.length > 0">
-      <div *ngFor="let item of messages">{{ item.userId }}: {{ item.message }}</div>
-    </div>
-
-    <form [formGroup]="chatForm" class="form-container">
+    <form [formGroup]="gameForm" class="form-container">
       <mat-form-field class="form-input">
-        <input matInput placeholder="Enter message..." formControlName="chatMessage">
+        <input matInput placeholder="How many rounds...?" type="number" formControlName="rounds">
       </mat-form-field>
 
       <div class="button-container">
-        <button mat-raised-button color="primary" (click)="sendChat()">Send</button>
+        <button mat-raised-button color="primary" *ngIf="!game" (click)="setRounds()">{{ playLabel}}</button>
+        <button mat-raised-button color="accent" *ngIf="!!game" (click)="setRounds()">{{ newGameLabel }}</button>
+        <!--<button mat-raised-button color="primary" *ngIf="!!game && game.deck.length > 1 && !game.isGameOver" (click)="nextRound()">Next Round</button>-->
       </div>
     </form>
-  </div>
-  <!-- End Chat -->
 
-  <div class="spacer"></div>
-  <div class="online-players" [ngClass]="{'positive': players > 1}">Online: {{ players }}</div>
-  <div class="online-players">Player Id: {{ user?.id || 'N/A' }}</div>
-  <div class="online-players">Channel Id: {{ channelId }}</div>
+    <ng-container *ngIf="!!game">
+      <div class="normal-text">Card(s) left: {{ game.deck.length }}</div>
+
+      <!-- BOARD ONE -->
+      <div class="main-board-1">
+        <label class="player-title">{{ game.player1.username }}'s hand</label>
+
+        <div class="card-container">
+          <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of game.player1.hand; let index = index" (click)="selectCard(game.player1, index)">
+            <label>{{ card.name }}</label>
+            <img class="card-img" [src]="card.img">
+          </div>
+        </div>
+
+        <button mat-raised-button color="primary" *ngIf="game.player1.isSelected && game.player1.isTurn" [ngClass]="{'inactive': !game.player1.isSelected}" (click)="game.player1.isSelected ? submit() : null">
+          Submit
+        </button>
+        <button mat-raised-button color="primary" *ngIf="!game.player1.isTurn" (click)="nextRound()">Next Round</button>
+      </div>
+
+      <!-- TALLY POINTS -->
+      <div class="round-container">
+        <div *ngFor="let score of game.roundResults">
+          <!-- win -->
+          <mat-icon *ngIf="score == 1">filter_vintage</mat-icon>
+
+          <!-- tie -->
+          <mat-icon *ngIf="score == 0">flare</mat-icon>
+
+          <!-- lose -->
+          <mat-icon *ngIf="score == -1">sentiment_very_dissatisfied</mat-icon>
+
+          <!-- none -->
+          <mat-icon *ngIf="score == 2">nature</mat-icon>
+        </div>
+      </div>
+
+      <!-- BOARD TWO -->
+      <div class="main-board-2">
+        <label class="player-title">{{ game.player2.username }}'s hand</label>
+
+        <div class="card-container">
+          <div class="card-item" [ngClass]="{'active': card.isSelected && game.player2.isTurn}" *ngFor="let card of game.player2.hand">
+            <label *ngIf="!game.player2.isTurn">???</label>
+            <label *ngIf="game.player2.isTurn">{{ card.name }}</label>
+            <img class="card-img c-na" [src]="card.img">
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- Start Chat -->
+    <div class="chat-container">
+      <label>Chat</label>
+      <div #messagesContainer class="messages-container" *ngIf="messages && messages.length > 0">
+        <div *ngFor="let item of messages">{{ item.userId }}: {{ item.message }}</div>
+      </div>
+
+      <form [formGroup]="chatForm" class="form-container">
+        <mat-form-field class="form-input">
+          <input matInput placeholder="Enter message..." formControlName="chatMessage">
+        </mat-form-field>
+
+        <div class="button-container">
+          <button mat-raised-button color="primary" (click)="sendChat()">Send</button>
+        </div>
+      </form>
+    </div>
+    <!-- End Chat -->
+
+    <div class="spacer"></div>
+    <div class="online-players" [ngClass]="{'positive': players > 1}">Online: {{ players }}</div>
+    <div class="online-players">Player Id: {{ user?.id || 'N/A' }}</div>
+    <div class="online-players">Channel Id: {{ channelId }}</div>
+  </div>
 </div>
 
 

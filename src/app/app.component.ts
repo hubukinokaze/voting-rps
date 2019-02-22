@@ -28,6 +28,7 @@ export class AppComponent {
   public channelId: string;
   public messages: Array<any> = [];
   public user: Player         = new Player();
+  public isLoading: boolean;
 
   @ViewChild('messagesContainer') private messagesContainer: ElementRef;
 
@@ -37,10 +38,11 @@ export class AppComponent {
               public audioService: AudioService,
               private formBuilder: FormBuilder,
               public dialog: MatDialog) {
-    this.initPusher();
   }
 
   ngOnInit() {
+    this.isLoading = true;
+    this.initPusher();
     this.gameForm = this.formBuilder.group({
       rounds: ['', [Validators.required, Validators.pattern('^[1-9][0-9]*$'), Validators.max(10)]]
     });
@@ -69,6 +71,7 @@ export class AppComponent {
 
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
+      this.isLoading = true;
       this.pusherChannel.trigger('client-chat', {
         chat: this.messages
       });
@@ -77,14 +80,17 @@ export class AppComponent {
         game: this.game
       });
       this.players++;
+      this.isLoading = false;
     });
 
     // listen for chat messages
     this.pusherChannel.bind('client-chat', data => {
       if (data.chat.length > 0 && this.messages.length !== data.chat.length) {
+        this.isLoading = true;
         this.audioService.receiveMsgAudio();
         this.messages = data.chat;
         this.autoScroll();
+        this.isLoading = false;
       }
     });
 
@@ -97,6 +103,7 @@ export class AppComponent {
       if (this.players && members.myID) {
         this.user.id = members.myID;
       }
+      this.isLoading = false;
       // this.setPlayer(this.players);
     });
 
@@ -113,7 +120,9 @@ export class AppComponent {
   // event triggered
   private listenForChanges(): AppComponent {
     this.pusherChannel.bind('client-fire', (data) => {
+      this.isLoading = true;
       this.game = data.game;
+      this.isLoading = false;
     });
     return this;
   }

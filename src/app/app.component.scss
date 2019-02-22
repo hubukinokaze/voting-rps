@@ -1,10 +1,19 @@
-.game-container {
+.game-body {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
   position: relative;
   min-height: 100%;
-  padding: 0 1em;
+  width: 100%;
+
+  .game-container {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    min-height: 100%;
+    width: 97%;
+    flex-grow: 1;
+  }
 
   .background-img {
     z-index: -1;
