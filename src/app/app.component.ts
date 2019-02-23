@@ -52,6 +52,9 @@ export class AppComponent {
     this.chatForm = this.formBuilder.group({
       chatMessage: ['', [Validators.required]]
     });
+
+    // send message if connection failed
+    this.checkConnection();
   }
 
   // initialise Pusher and bind to presence channel
@@ -289,10 +292,11 @@ export class AppComponent {
   public openHelpDialog(): void {
     const dialogRef = this.dialog.open(GameInfoComponent, {
       width: '20em',
-      data : 100
+      data : this.user
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      this.user = result;
     });
   }
 
@@ -345,5 +349,15 @@ export class AppComponent {
       const msg   = 'You are a spectator';
       this.openSnackBar(msg);
     }
+  }
+
+  private checkConnection() {
+    setTimeout( (f) => {
+      if (this.players === 0) {
+        const msg = 'Connection failed. Make sure you have good connection.';
+        this.openSnackBar(msg);
+        this.isLoading = false;
+      }
+    }, 10000);
   }
 }

@@ -42,11 +42,12 @@
 
       <!-- BOARD -->
       <div class="main-board-1" *ngFor="let p of game.players; let i = index">
-        <label class="player-title">{{ player === i ? 'Your hand' : 'Enemy hand'}}</label>
+        <label class="player-title">{{ player === i ? user.username : 'Enemy hand'}}</label>
 
         <div class="card-container">
           <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn ? selectCard(p, index) : null">
-            <label>{{ card.name }}</label>
+            <label *ngIf="player !== i && !game.isRoundOver">???</label>
+            <label *ngIf="player === i || game.isRoundOver">{{ card.name }}</label>
             <img class="card-img" [src]="card.img">
           </div>
         </div>
@@ -66,7 +67,7 @@
 
         <!--<div class="card-container">-->
           <!--<div class="card-item" [ngClass]="{'active': card.isSelected && game.player2.isTurn}" *ngFor="let card of game.player2.hand">-->
-            <!--&lt;!&ndash;<label *ngIf="!game.player2.isTurn">???</label>&ndash;&gt;-->
+            <!--<label *ngIf="!game.player2.isTurn">???</label>-->
             <!--&lt;!&ndash;<label *ngIf="game.player2.isTurn">{{ card.name }}</label>&ndash;&gt;-->
             <!--<label>{{ card.name }}</label>-->
             <!--<img class="card-img c-na" [src]="card.img">-->
