@@ -94,6 +94,10 @@ export class AppComponent {
         chat: this.messages
       });
 
+      this.pusherChannel.trigger('client-fire', {
+        game: this.game
+      });
+
       this.players++;
 
       // check if its the second player
@@ -186,6 +190,11 @@ export class AppComponent {
           this.changeToSpectator();
         }
         this.isLoading = false;
+      } else if (!this.game && data.game) {
+        this.game = data.game;
+        if (!this.isValidPlayer()) {
+          this.changeToSpectator();
+        }
       }
     });
 
@@ -331,8 +340,10 @@ export class AppComponent {
   }
 
   private changeToSpectator() {
-    this.player = Math.floor(Math.random() * 1001) + 2;
-    const msg   = 'You are a spectator';
-    this.openSnackBar(msg);
+    if (this.player < 2) {
+      this.player = Math.floor(Math.random() * 1001) + 2;
+      const msg   = 'You are a spectator';
+      this.openSnackBar(msg);
+    }
   }
 }
