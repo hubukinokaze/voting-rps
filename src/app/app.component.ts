@@ -159,11 +159,15 @@ export class AppComponent {
   private listenForChanges(): AppComponent {
     this.pusherChannel.bind('client-start-game', (data) => {
       if (!this.game) {
-        this.isLoading = true;
-        this.game      = data.game;
-        this.randomUser = this.game.players.filter( (p) => {
+        this.isLoading  = true;
+        this.game       = data.game;
+        this.randomUser = this.game.players.filter((p) => {
           return p.id !== this.user.id;
         })[0];
+
+        if (!this.isValidPlayer()) {
+          this.changeToSpectator();
+        }
         this.isLoading = false;
       }
     });
@@ -172,10 +176,14 @@ export class AppComponent {
       if (this.game) {
         this.isLoading = true;
         this.game      = data.game;
-        if (!this.game.players[this.player].isTurn) {
-          const msg = this.boardService.submit(this.game);
-          this.game = msg.game;
-          this.openSnackBar(msg.msg);
+        if (this.isValidPlayer()) {
+          if (!this.game.players[this.player].isTurn) {
+            const msg = this.boardService.submit(this.game);
+            this.game = msg.game;
+            this.openSnackBar(msg.msg);
+          }
+        } else if (!this.isValidPlayer()) {
+          this.changeToSpectator();
         }
         this.isLoading = false;
       }
@@ -192,13 +200,27 @@ export class AppComponent {
   }
 
   public setRounds() {
-    if (this.gameForm.valid && this.players > 1) {
-      this.audioService.startAudio();
-      this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
 
-      this.pusherChannel.trigger('client-start-game', {
-        game: this.game
-      });
+    if (this.gameForm.valid && this.players > 1) {
+      if (this.game) {
+        if (this.isValidPlayer()) {
+          this.audioService.startAudio();
+          this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+
+          this.pusherChannel.trigger('client-start-game', {
+            game: this.game
+          });
+        } else if (!this.isValidPlayer()) {
+          this.changeToSpectator();
+        }
+      } else {
+        this.audioService.startAudio();
+        this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+
+        this.pusherChannel.trigger('client-start-game', {
+          game: this.game
+        });
+      }
     } else if (this.gameForm.valid && this.players === 1) {
       const msg = 'Need 1 more player';
       this.openSnackBar(msg);
@@ -209,20 +231,29 @@ export class AppComponent {
   }
 
   public nextRound() {
-    this.boardService.nextRound();
-    this.pusherChannel.trigger('client-fire', {
-      game: this.game
-    });
+    if (this.isValidPlayer()) {
+      this.boardService.nextRound();
+      this.pusherChannel.trigger('client-fire', {
+        game: this.game
+      });
+    } else if (!this.isValidPlayer()) {
+      this.changeToSpectator();
+    }
   }
 
   public selectCard(player: Player, index: number) {
     if (!this.game.isRoundOver) {
-      this.boardService.selectCard(player, index);
+      if (this.isValidPlayer()) {
+        this.boardService.selectCard(player, index);
 
-      this.pusherChannel.trigger('client-select-card', {
-        playerId: player.playerId,
-        index   : index
-      });
+        this.pusherChannel.trigger('client-select-card', {
+          playerId: player.playerId,
+          index   : index
+        });
+      } else if (!this.isValidPlayer()) {
+        this.changeToSpectator();
+      }
+
     }
   }
 
@@ -240,7 +271,7 @@ export class AppComponent {
 
       if (!this.game.players[this.randomUser.playerId].isTurn) {
         const msg2 = this.boardService.submit(this.game);
-        this.game = msg2.game;
+        this.game  = msg2.game;
         this.openSnackBar(msg2.msg);
       }
     }
@@ -288,5 +319,20 @@ export class AppComponent {
     this.snackBar.open(msg, '', {
       duration: 2000,
     });
+  }
+
+  private isValidPlayer(): boolean {
+    if (this.game && this.game.players && this.game.players.length === 2) {
+      return this.game.players.filter((p) => {
+        return p.id === this.user.id;
+      }).length > 0;
+    }
+    return false;
+  }
+
+  private changeToSpectator() {
+    this.player = Math.floor(Math.random() * 1001) + 2;
+    const msg   = 'You are a spectator';
+    this.openSnackBar(msg);
   }
 }
