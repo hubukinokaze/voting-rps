@@ -297,6 +297,17 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       this.user = result;
+      if (this.game) {
+        this.game.players.filter((p) => {
+          if (p.id === this.user.id) {
+            p = this.user;
+          }
+        });
+
+        this.pusherChannel.trigger('client-fire', {
+          game: this.game
+        });
+      }
     });
   }
 
@@ -336,11 +347,15 @@ export class AppComponent {
 
   private isValidPlayer(): boolean {
     if (this.game && this.game.players && this.game.players.length === 2) {
-      return this.game.players.filter((p) => {
-        return p.id === this.user.id;
-      }).length > 0;
+      return this.getUserFromGame().length > 0;
     }
     return false;
+  }
+
+  private getUserFromGame(): Array<Player> {
+    return this.game.players.filter((p) => {
+      return p.id === this.user.id;
+    });
   }
 
   private changeToSpectator() {
@@ -352,7 +367,7 @@ export class AppComponent {
   }
 
   private checkConnection() {
-    setTimeout( (f) => {
+    setTimeout((f) => {
       if (this.players === 0) {
         const msg = 'Connection failed. Make sure you have good connection.';
         this.openSnackBar(msg);

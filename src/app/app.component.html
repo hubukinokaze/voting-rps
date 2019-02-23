@@ -42,7 +42,8 @@
 
       <!-- BOARD -->
       <div class="main-board-1" *ngFor="let p of game.players; let i = index">
-        <label class="player-title">{{ player === i ? user.username : 'Enemy hand'}}</label>
+        <!--<label class="player-title">{{player === i ? user.username : randomUser.username}}</label>-->
+        <label class="player-title">{{ p.username}}</label>
 
         <div class="card-container">
           <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn ? selectCard(p, index) : null">
