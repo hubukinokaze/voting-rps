@@ -107,7 +107,7 @@ export class AppComponent {
       if (this.players === 2) {
         this.randomUser.id       = member.id;
         this.randomUser.playerId = this.player++;
-        this.randomUser.username = 'Second Player';
+        this.randomUser.username = `Player ${Math.floor(Math.random() * 11) + 21}`;
         this.player              = 0;
       }
 
@@ -134,7 +134,7 @@ export class AppComponent {
       if (this.players && members.myID) {
         this.user.id       = members.myID;
         this.user.playerId = this.player++;
-        this.user.username = 'Player 1';
+        this.user.username = `Player ${Math.floor(Math.random() * 11) + 11}`;
       }
       this.isLoading = false;
       // this.setPlayer(this.players);
@@ -297,10 +297,13 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       this.user = result;
+      console.log(result);
       if (this.game) {
         this.game.players.filter((p) => {
           if (p.id === this.user.id) {
-            p = this.user;
+            console.log(p);
+            p.username = this.user.username;
+            console.log(p);
           }
         });
 
