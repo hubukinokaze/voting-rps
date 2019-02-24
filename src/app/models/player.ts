@@ -12,4 +12,5 @@ export class Player {
   hand: Array<Card> = [];
   isTurn: boolean;
   isSelected: boolean;
+  channel: string;
 }

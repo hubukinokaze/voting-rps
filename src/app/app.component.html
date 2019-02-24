@@ -11,6 +11,13 @@
 
     <form [formGroup]="gameForm" class="form-container">
       <mat-form-field class="form-input">
+        <mat-select matInput placeholder="Enemy...?" formControlName="enemyId">
+          <mat-option>Clear</mat-option>
+          <mat-option *ngFor="let member of members" [value]="member">{{ member }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="form-input">
         <input matInput placeholder="How many rounds...?" type="number" formControlName="rounds">
       </mat-form-field>
 

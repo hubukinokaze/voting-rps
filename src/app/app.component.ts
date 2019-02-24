@@ -26,6 +26,8 @@ export class AppComponent {
   public chatForm: FormGroup;
   public player: number       = 0;
   public players: number      = 0;
+  public members: Array<any>  = [];
+  public membersInfo: any;
   public channelId: string;
   public messages: Array<any> = [];
   public user: Player         = new Player();
@@ -46,7 +48,8 @@ export class AppComponent {
     this.isLoading = true;
     this.initPusher();
     this.gameForm = this.formBuilder.group({
-      rounds: ['', [Validators.required, Validators.pattern('^[1-9][0-9]*$'), Validators.max(10)]]
+      enemyId: ['', [Validators.required]],
+      rounds : ['', [Validators.required, Validators.pattern('^[1-9][0-9]*$'), Validators.max(10)]]
     });
 
     this.chatForm = this.formBuilder.group({
@@ -69,7 +72,9 @@ export class AppComponent {
     this.channelId = channelId;
 
     // init pusher
-    const pusher = this.pusherService.getPusher();
+    this.user.username = `Player ${Math.floor(Math.random() * 11) + 11}`;
+    this.user.channel  = this.channelId;
+    const pusher       = this.pusherService.getPusher(this.user);
 
     // handle error
     pusher.connection.bind('error', (err) => {
@@ -91,7 +96,9 @@ export class AppComponent {
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
       this.isLoading = true;
-      console.log('new player arrived');
+      this.members.push(member.id);
+      console.log('new player arrived', member);
+
 
       this.pusherChannel.trigger('client-chat', {
         chat: this.messages
@@ -105,10 +112,8 @@ export class AppComponent {
 
       // check if its the second player
       if (this.players === 2) {
-        this.randomUser.id       = member.id;
-        this.randomUser.playerId = this.player++;
-        this.randomUser.username = `Player ${Math.floor(Math.random() * 11) + 21}`;
-        this.player              = 0;
+        // this.randomUser.playerId = this.player++;
+        this.player = 0;
       }
 
       this.isLoading = false;
@@ -127,15 +132,24 @@ export class AppComponent {
 
     // listen for successful connection to channel
     this.pusherChannel.bind('pusher:subscription_succeeded', members => {
+      this.membersInfo = members;
+      this.members     = Object.keys(this.membersInfo.members);
+      this.members     = this.members.filter((p) => {
+        return p !== this.membersInfo.myID;
+      });
+
       console.log('subscription_succeeded: ', members);
 
       this.listenForChanges();
-      this.players = members.count;
-      if (this.players && members.myID) {
-        this.user.id       = members.myID;
+      this.players = this.membersInfo.count;
+      if (this.players && this.membersInfo.myID) {
+        this.user.id       = this.membersInfo.myID;
         this.user.playerId = this.player++;
-        this.user.username = `Player ${Math.floor(Math.random() * 11) + 11}`;
+        // this.user.username = `Player ${Math.floor(Math.random() * 11) + 11}`;
       }
+
+      // TODO: logic for selecting second player
+
       this.isLoading = false;
       // this.setPlayer(this.players);
     });
@@ -154,6 +168,9 @@ export class AppComponent {
           this.openSnackBar(msg);
         }
       }
+      this.members = this.members.filter((p) => {
+        return p !== member.id;
+      });
       this.players--;
     });
 
@@ -166,12 +183,14 @@ export class AppComponent {
   private listenForChanges(): AppComponent {
     this.pusherChannel.bind('client-start-game', (data) => {
       if (!this.game) {
-        this.isLoading  = true;
-        this.game       = data.game;
-        this.randomUser = this.getUserFromGame('randomUser')[0];
+        this.isLoading = true;
+        this.game      = data.game;
 
         if (!this.isValidPlayer()) {
           this.changeToSpectator();
+        } else {
+          this.randomUser = this.getUserFromGame('randomUser')[0];
+          this.player     = this.getUserFromGame('me')[0].playerId;
         }
         this.isLoading = false;
       } else {
@@ -186,7 +205,7 @@ export class AppComponent {
         if (this.isValidPlayer()) {
           if (!this.game.players[this.player].isTurn) {
             const temp = this.boardService.submit(this.game);
-            this.game = temp.game;
+            this.game  = temp.game;
             this.openSnackBar(temp.msg);
           }
         } else if (!this.isValidPlayer()) {
@@ -212,7 +231,6 @@ export class AppComponent {
   }
 
   public setRounds() {
-
     if (this.gameForm.valid && this.players > 1) {
       if (this.game) {
         if (this.isValidPlayer()) {
@@ -238,8 +256,17 @@ export class AppComponent {
         }
       } else {
         this.audioService.startAudio();
-        this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+        this.user.id       = this.membersInfo.myID;
+        this.user.username = this.membersInfo.members[this.user.id].username;
+        this.user.playerId = 0;
+        this.player        = 0;
 
+        this.randomUser.id       = this.gameForm.controls['enemyId'].value;
+        this.randomUser.username = this.membersInfo.members[this.randomUser.id].username;
+        this.randomUser.playerId = 1;
+        this.game                = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+
+        console.log({ ...this.game });
         this.pusherChannel.trigger('client-start-game', {
           game: this.game
         });
@@ -381,7 +408,7 @@ export class AppComponent {
       this.player = Math.floor(Math.random() * 1001) + 2;
     }
 
-    const msg   = 'Spectating';
+    const msg = 'Spectating';
     this.openSnackBar(msg);
   }
 

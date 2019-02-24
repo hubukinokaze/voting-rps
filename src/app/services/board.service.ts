@@ -73,7 +73,7 @@ export class BoardService {
   }
 
   public nextRound() {
-    window.scrollTo(0, 0);
+    // window.scrollTo(0, 0);
     this.game.isRoundOver = false;
 
     this.passCards(this.game.players[0]);

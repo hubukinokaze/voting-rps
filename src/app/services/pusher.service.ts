@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Player }     from '../models/player';
+
 declare const Pusher: any;
 
 @Injectable({
@@ -7,13 +9,17 @@ declare const Pusher: any;
 export class PusherService {
   private pusherKey: string = '94c056c5d4985cdffc49';
 
-  constructor() { }
+  constructor() {
+  }
 
-  getPusher() {
+  getPusher(user: Player) {
     return new Pusher(this.pusherKey, {
       authEndpoint: '/pusher/auth',
       cluster     : 'us2',
-      forceTLS    : true
+      forceTLS    : true,
+      auth        : {
+        params: user
+      }
     });
   }
 
