@@ -168,14 +168,14 @@ export class AppComponent {
       if (!this.game) {
         this.isLoading  = true;
         this.game       = data.game;
-        this.randomUser = this.game.players.filter((p) => {
-          return p.id !== this.user.id;
-        })[0];
+        this.randomUser = this.getUserFromGame('randomUser')[0];
 
         if (!this.isValidPlayer()) {
           this.changeToSpectator();
         }
         this.isLoading = false;
+      } else {
+        this.game = data.game;
       }
     });
 
@@ -217,11 +217,22 @@ export class AppComponent {
       if (this.game) {
         if (this.isValidPlayer()) {
           this.audioService.startAudio();
-          this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+          if (!this.game.isGameOver) {
+            const user       = this.getUserFromGame('me')[0];
+            const randomUser = this.getUserFromGame('randomUser')[0];
 
-          this.pusherChannel.trigger('client-start-game', {
-            game: this.game
-          });
+            this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, user, randomUser);
+
+            this.pusherChannel.trigger('client-start-game', {
+              game: this.game
+            });
+          } else {
+            this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+
+            this.pusherChannel.trigger('client-start-game', {
+              game: this.game
+            });
+          }
         } else if (!this.isValidPlayer()) {
           this.changeToSpectator();
         }
@@ -300,9 +311,7 @@ export class AppComponent {
       if (this.game) {
         this.game.players.filter((p) => {
           if (p.id === this.user.id) {
-            console.log(p);
             p.username = this.user.username;
-            console.log(p);
           }
         });
 
@@ -348,17 +357,24 @@ export class AppComponent {
   }
 
   private isValidPlayer(): boolean {
-    if (this.game && this.game.players && this.game.players.length === 2) {
-      return this.getUserFromGame().length > 0;
+    if (this.game && this.game.players.length === 2) {
+      return this.getUserFromGame('me').length > 0;
     }
     return false;
   }
 
-  private getUserFromGame(): Array<Player> {
-    return this.game.players.filter((p) => {
-      return p.id === this.user.id;
-    });
+  private getUserFromGame(user: string): Array<Player> {
+    if (user === 'me') {
+      return this.game.players.filter((p) => {
+        return p.id === this.user.id;
+      });
+    } else {
+      return this.game.players.filter((p) => {
+        return p.id !== this.user.id;
+      });
+    }
   }
+
 
   private changeToSpectator() {
     if (this.player < 2) {

@@ -13,12 +13,20 @@ export class BoardService {
   }
 
   public startGame(roundSize: number, user1: Player, user2: Player): Game {
+    user1.scores = [];
+    user1.isTurn = true;
+    user1.isSelected = false;
+
+    user2.scores = [];
+    user2.isTurn = true;
+    user2.isSelected = false;
+
     this.game             = new Game();
     this.game.roundNumber = 0;
     this.game.roundSize   = roundSize;
     this.game.isRoundOver = false;
     this.game.isGameOver  = false;
-    this.game.players     = [user1, user2];
+    this.game.players = (user1.playerId < user2.playerId) ? [user1, user2] : [user2, user1];
     // this.game.player1.username = 'Player ' + Math.floor(Math.random() * 1001);
 
     this.setRoundResults(this.game.roundSize);

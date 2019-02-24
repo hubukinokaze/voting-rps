@@ -27,13 +27,13 @@
       <div class="round-container">
         <div *ngFor="let score of game.players[player].scores">
           <!-- win -->
-          <mat-icon *ngIf="score == 1">filter_vintage</mat-icon>
+          <mat-icon *ngIf="score == 1" color="primary" matTooltip="win" matTooltipPosition="above">filter_vintage</mat-icon>
 
           <!-- tie -->
-          <mat-icon *ngIf="score == 0">flare</mat-icon>
+          <mat-icon *ngIf="score == 0" matTooltip="tie" matTooltipPosition="above">flare</mat-icon>
 
           <!-- lose -->
-          <mat-icon *ngIf="score == -1">sentiment_very_dissatisfied</mat-icon>
+          <mat-icon *ngIf="score == -1" color="warn" matTooltip="lose" matTooltipPosition="above">sentiment_very_dissatisfied</mat-icon>
 
           <!-- none -->
           <mat-icon *ngIf="score == 2">nature</mat-icon>
