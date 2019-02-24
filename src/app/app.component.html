@@ -20,7 +20,7 @@
       </div>
     </form>
 
-    <ng-container *ngIf="!!game && game.players.length > 1 && !game.isGameOver">
+    <ng-container *ngIf="!!game && game.players.length > 1">
       <div class="normal-text">Card(s) left: {{ game.deck.length }}</div>
 
       <!-- PLAYER TALLY POINTS -->
@@ -65,7 +65,7 @@
             Submit
           </button>
 
-          <button mat-raised-button color="primary" *ngIf="game.isRoundOver" (click)="nextRound()">Next Round</button>
+          <button mat-raised-button color="primary" *ngIf="game.isRoundOver && !game.isGameOver" (click)="nextRound()">Next Round</button>
         </ng-container>
       </div>
 
