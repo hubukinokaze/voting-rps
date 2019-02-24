@@ -185,9 +185,9 @@ export class AppComponent {
         this.game      = data.game;
         if (this.isValidPlayer()) {
           if (!this.game.players[this.player].isTurn) {
-            const msg = this.boardService.submit(this.game);
-            this.game = msg.game;
-            this.openSnackBar(msg.msg);
+            const temp = this.boardService.submit(this.game);
+            this.game = temp.game;
+            this.openSnackBar(temp.msg);
           }
         } else if (!this.isValidPlayer()) {
           this.changeToSpectator();
@@ -379,9 +379,10 @@ export class AppComponent {
   private changeToSpectator() {
     if (this.player < 2) {
       this.player = Math.floor(Math.random() * 1001) + 2;
-      const msg   = 'You are a spectator';
-      this.openSnackBar(msg);
     }
+
+    const msg   = 'Spectating';
+    this.openSnackBar(msg);
   }
 
   private checkConnection() {

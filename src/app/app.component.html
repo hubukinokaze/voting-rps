@@ -23,8 +23,8 @@
     <ng-container *ngIf="!!game && game.players.length > 1 && !game.isGameOver">
       <div class="normal-text">Card(s) left: {{ game.deck.length }}</div>
 
-      <!-- TALLY POINTS -->
-      <div class="round-container">
+      <!-- PLAYER TALLY POINTS -->
+      <div class="round-container" *ngIf="player < 2">
         <div *ngFor="let score of game.players[player].scores">
           <!-- win -->
           <mat-icon *ngIf="score == 1" color="primary" matTooltip="win" matTooltipPosition="above">filter_vintage</mat-icon>
@@ -40,6 +40,13 @@
         </div>
       </div>
 
+      <!-- SPECTATOR TALLY POINTS -->
+      <div class="round-spectator-container" *ngIf="player > 1">
+        <div>Round: {{ game.roundNumber+1 }}</div>
+        <div>{{ game.players[0].username }}: {{ game.players[0].wins || 0 }}</div>
+        <div>{{ game.players[1].username }}: {{ game.players[1].wins || 0 }}</div>
+      </div>
+
       <!-- BOARD -->
       <div class="main-board-1" *ngFor="let p of game.players; let i = index">
         <!--<label class="player-title">{{player === i ? user.username : randomUser.username}}</label>-->
@@ -47,8 +54,8 @@
 
         <div class="card-container">
           <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn ? selectCard(p, index) : null">
-            <label *ngIf="player !== i && !game.isRoundOver">???</label>
-            <label *ngIf="player === i || game.isRoundOver">{{ card.name }}</label>
+            <label *ngIf="player !== i && !game.isRoundOver && player < 2">???</label>
+            <label *ngIf="player === i || game.isRoundOver || player > 1">{{ card.name }}</label>
             <img class="card-img" [src]="card.img">
           </div>
         </div>

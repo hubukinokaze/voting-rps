@@ -13,20 +13,22 @@ export class BoardService {
   }
 
   public startGame(roundSize: number, user1: Player, user2: Player): Game {
-    user1.scores = [];
-    user1.isTurn = true;
+    user1.scores     = [];
+    user1.isTurn     = true;
     user1.isSelected = false;
+    user1.wins       = 0;
 
-    user2.scores = [];
-    user2.isTurn = true;
+    user2.scores     = [];
+    user2.isTurn     = true;
     user2.isSelected = false;
+    user2.wins       = 0;
 
     this.game             = new Game();
     this.game.roundNumber = 0;
     this.game.roundSize   = roundSize;
     this.game.isRoundOver = false;
     this.game.isGameOver  = false;
-    this.game.players = (user1.playerId < user2.playerId) ? [user1, user2] : [user2, user1];
+    this.game.players     = (user1.playerId < user2.playerId) ? [user1, user2] : [user2, user1];
     // this.game.player1.username = 'Player ' + Math.floor(Math.random() * 1001);
 
     this.setRoundResults(this.game.roundSize);
@@ -113,7 +115,7 @@ export class BoardService {
     const enemySelectedCard = this.game.players[1].hand.filter((x) => x.isSelected === true)[0].name;
 
     if (selectedCard === enemySelectedCard) {
-      msg = 'You tied!';
+      msg                                                = 'You tied!';
       // this.game.roundResults[this.game.roundNumber] = 0;
       this.game.players[0].scores[this.game.roundNumber] = 0;
       this.game.players[1].scores[this.game.roundNumber] = 0;
@@ -121,18 +123,22 @@ export class BoardService {
       msg                                                = `${this.game.players[1].username} wins!`;
       this.game.players[0].scores[this.game.roundNumber] = -1;
       this.game.players[1].scores[this.game.roundNumber] = 1;
+      this.game.players[1].wins += 1;
     } else if (selectedCard === 'PAPER' && enemySelectedCard === 'SCISSOR') {
       msg                                                = `${this.game.players[1].username} wins!`;
       this.game.players[0].scores[this.game.roundNumber] = -1;
       this.game.players[1].scores[this.game.roundNumber] = 1;
+      this.game.players[1].wins += 1;
     } else if (selectedCard === 'SCISSOR' && enemySelectedCard === 'ROCK') {
       msg                                                = `${this.game.players[1].username} wins!`;
       this.game.players[0].scores[this.game.roundNumber] = -1;
       this.game.players[1].scores[this.game.roundNumber] = 1;
+      this.game.players[1].wins += 1;
     } else {
       msg                                                = `${this.game.players[0].username} wins!`;
       this.game.players[0].scores[this.game.roundNumber] = 1;
       this.game.players[1].scores[this.game.roundNumber] = -1;
+      this.game.players[0].wins += 1;
     }
     this.game.roundNumber++;
     this.game.isRoundOver = true;
