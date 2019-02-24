@@ -6,9 +6,10 @@ export class Player {
   username: string;
   img: string;
   rank: number;
+  scores: Array<number> = [];
   wins: number;
   losses: number;
-  hand: Array<Card>;
+  hand: Array<Card> = [];
   isTurn: boolean;
   isSelected: boolean;
 }

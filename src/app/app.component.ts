@@ -297,7 +297,6 @@ export class AppComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       this.user = result;
-      console.log(result);
       if (this.game) {
         this.game.players.filter((p) => {
           if (p.id === this.user.id) {

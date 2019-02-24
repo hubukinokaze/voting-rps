@@ -25,7 +25,7 @@
 
       <!-- TALLY POINTS -->
       <div class="round-container">
-        <div *ngFor="let score of game.roundResults">
+        <div *ngFor="let score of game.players[player].scores">
           <!-- win -->
           <mat-icon *ngIf="score == 1">filter_vintage</mat-icon>
 

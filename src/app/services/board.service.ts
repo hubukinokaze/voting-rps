@@ -18,7 +18,7 @@ export class BoardService {
     this.game.roundSize   = roundSize;
     this.game.isRoundOver = false;
     this.game.isGameOver  = false;
-    this.game.players = [user1, user2];
+    this.game.players     = [user1, user2];
     // this.game.player1.username = 'Player ' + Math.floor(Math.random() * 1001);
 
     this.setRoundResults(this.game.roundSize);
@@ -28,10 +28,12 @@ export class BoardService {
   }
 
   private setRoundResults(roundSize: number) {
-    this.game.roundResults = [2];
-    for (let i = 1; i < roundSize; i++) {
+    for (let i = 1; i <= roundSize; i++) {
+      this.game.players[0].scores.push(2);
+      this.game.players[1].scores.push(2);
       this.game.roundResults.push(2);
     }
+    console.log(this.game.players);
   }
 
   public createDeck() {
@@ -62,7 +64,7 @@ export class BoardService {
 
   public nextRound() {
     window.scrollTo(0, 0);
-    this.game.isRoundOver      = false;
+    this.game.isRoundOver = false;
 
     this.passCards(this.game.players[0]);
     this.passCards(this.game.players[1]);
@@ -97,34 +99,40 @@ export class BoardService {
   }
 
   public submit(game: Game) {
-    this.game = game;
+    this.game               = game;
     let msg                 = '';
     const selectedCard      = this.game.players[0].hand.filter((x) => x.isSelected === true)[0].name;
     const enemySelectedCard = this.game.players[1].hand.filter((x) => x.isSelected === true)[0].name;
 
     if (selectedCard === enemySelectedCard) {
-      msg                                           = 'You tied!';
-      this.game.roundResults[this.game.roundNumber] = 0;
+      msg = 'You tied!';
+      // this.game.roundResults[this.game.roundNumber] = 0;
+      this.game.players[0].scores[this.game.roundNumber] = 0;
+      this.game.players[1].scores[this.game.roundNumber] = 0;
     } else if (selectedCard === 'ROCK' && enemySelectedCard === 'PAPER') {
-      msg                                           = 'You lose!';
-      this.game.roundResults[this.game.roundNumber] = -1;
+      msg                                                = `${this.game.players[1].username} wins!`;
+      this.game.players[0].scores[this.game.roundNumber] = -1;
+      this.game.players[1].scores[this.game.roundNumber] = 1;
     } else if (selectedCard === 'PAPER' && enemySelectedCard === 'SCISSOR') {
-      msg                                           = 'You lose!';
-      this.game.roundResults[this.game.roundNumber] = -1;
+      msg                                                = `${this.game.players[1].username} wins!`;
+      this.game.players[0].scores[this.game.roundNumber] = -1;
+      this.game.players[1].scores[this.game.roundNumber] = 1;
     } else if (selectedCard === 'SCISSOR' && enemySelectedCard === 'ROCK') {
-      msg                                           = 'You lose!';
-      this.game.roundResults[this.game.roundNumber] = -1;
+      msg                                                = `${this.game.players[1].username} wins!`;
+      this.game.players[0].scores[this.game.roundNumber] = -1;
+      this.game.players[1].scores[this.game.roundNumber] = 1;
     } else {
-      msg                                           = 'You win!';
-      this.game.roundResults[this.game.roundNumber] = 1;
+      msg                                                = `${this.game.players[0].username} wins!`;
+      this.game.players[0].scores[this.game.roundNumber] = 1;
+      this.game.players[1].scores[this.game.roundNumber] = -1;
     }
     this.game.roundNumber++;
-    this.game.isRoundOver    = true;
+    this.game.isRoundOver = true;
     if (this.game.deck.length === 0) {
       this.game.isGameOver = true;
     }
     this.checkGameOver();
-    return {game: this.game, msg: msg};
+    return { game: this.game, msg: msg };
   }
 
   private checkGameOver() {
