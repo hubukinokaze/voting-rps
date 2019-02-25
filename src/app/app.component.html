@@ -64,7 +64,7 @@
             <!--<label *ngIf="player !== i && !game.isRoundOver && player < 2">???</label>-->
             <label *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1">{{ card.name }}</label>
             <img *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1" class="card-img" [src]="card.imgFront">
-            <img *ngIf="(player !== i && !card.isFaceUp) || (card.isFaceUp && !game.isRoundOver && player !== i)" class="card-img" [src]="card.imgBack">
+            <img *ngIf="(player !== i && !card.isFaceUp && player < 2) || (card.isFaceUp && !game.isRoundOver && player !== i && player < 2)" class="card-img" [src]="card.imgBack">
           </div>
         </div>
 
