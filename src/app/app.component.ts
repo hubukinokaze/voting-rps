@@ -241,11 +241,19 @@ export class AppComponent {
 
             this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, user, randomUser);
 
+            this.game.players[this.player].hand.filter( (c) => {
+              c.isFaceUp = true;
+            });
+
             this.pusherChannel.trigger('client-start-game', {
               game: this.game
             });
           } else {
             this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+
+            this.game.players[this.player].hand.filter( (c) => {
+              c.isFaceUp = true;
+            });
 
             this.pusherChannel.trigger('client-start-game', {
               game: this.game
@@ -310,6 +318,11 @@ export class AppComponent {
   public submit() {
     if (!this.game.isRoundOver) {
       this.game.players[this.player].isTurn = false;
+      this.game.players[this.player].hand.filter( (c) => {
+        if (c.isSelected) {
+          c.isFaceUp = true;
+        }
+      });
 
       const msg = 'Locked in';
 

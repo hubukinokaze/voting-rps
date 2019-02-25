@@ -61,9 +61,10 @@
 
         <div class="card-container">
           <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn ? selectCard(p, index) : null">
-            <label *ngIf="player !== i && !game.isRoundOver && player < 2">???</label>
-            <label *ngIf="player === i || game.isRoundOver || player > 1">{{ card.name }}</label>
-            <img class="card-img" [src]="card.img">
+            <!--<label *ngIf="player !== i && !game.isRoundOver && player < 2">???</label>-->
+            <label *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1">{{ card.name }}</label>
+            <img *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1" class="card-img" [src]="card.imgFront">
+            <img *ngIf="(player !== i && !card.isFaceUp) || (card.isFaceUp && !game.isRoundOver && player !== i)" class="card-img" [src]="card.imgBack">
           </div>
         </div>
 
@@ -113,6 +114,7 @@
 
     <div class="spacer"></div>
     <div class="online-players" [ngClass]="{'positive': players > 1}">Online: {{ players }}</div>
+    <div class="online-players">Username: {{ user?.username || 'N/A' }}</div>
     <div class="online-players">Player Id: {{ user?.id || 'N/A' }}</div>
     <div class="online-players">Channel Id: {{ channelId }}</div>
   </div>

@@ -2,7 +2,8 @@ export class Card {
   id: string;
   name: string;
   type: number;
-  img: string;
+  imgFront: string;
+  imgBack: string;
   isSelected: boolean;
   isFaceUp: boolean;
 }

@@ -52,7 +52,8 @@ export class BoardService {
     let count = 0;
     while (count < this.game.roundSize * 6) {
       const tempCard = new Card();
-      tempCard.img   = './assets/card-img-001.png';
+      tempCard.imgFront   = './assets/card-img-002.png';
+      tempCard.imgBack   = './assets/card-img-001.png';
       const rng      = Math.floor(Math.random() * 3);
       switch (rng) {
         case 0:
