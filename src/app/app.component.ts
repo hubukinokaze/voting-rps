@@ -1,17 +1,38 @@
 import { Component, ElementRef, ViewChild }   from '@angular/core';
 import { Player }                             from './models/player';
 import { MatDialog, MatSnackBar }             from '@angular/material';
-import { BoardService }                       from './services/board.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Game }                               from './models/game';
-import { GameInfoComponent }                  from './modals/game-info/game-info.component';
-import { PusherService }                      from './services/pusher.service';
-import { AudioService }                       from './services/audio.service';
+import { BoardService }                                               from './services/board.service';
+import { FormBuilder, FormGroup, Validators }                                    from '@angular/forms';
+import { Game }                                                                  from './models/game';
+import { GameInfoComponent }                                                     from './modals/game-info/game-info.component';
+import { PusherService }                                                         from './services/pusher.service';
+import { AudioService }                                                          from './services/audio.service';
+import { animate, keyframes, query, stagger, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector   : 'app-root',
   templateUrl: './app.component.html',
-  styleUrls  : ['./app.component.scss']
+  styleUrls  : ['./app.component.scss'],
+  animations: [
+    trigger('listAnimation', [
+      state('out', style({opacity: 1 })),
+
+      transition('in => out', [
+
+        query('.card-item', style({ opacity: 0 }), { optional: true }),
+
+        query('.card-item', stagger('300ms', [
+          animate('1s ease-in', keyframes([
+            style({ opacity: 0, transform: 'translateX(-100%)', offset: 0 }),
+            style({ opacity: .5, transform: 'translateX(35px)', offset: 0.3 }),
+            style({ opacity: 1, transform: 'translateX(0)', offset: 1.0 }),
+          ]))]), { optional: true })
+      ])
+    ]),
+    trigger('itemAnimation', [
+      state('in', style({opacity: 0}))
+    ]),
+  ]
 })
 export class AppComponent {
   pusherChannel: any;
@@ -20,6 +41,7 @@ export class AppComponent {
   public titleLabel: string   = 'Voting RPS';
   public playLabel: string    = 'Play';
   public newGameLabel: string = 'New Game';
+  public nextRoundLabel: string = 'Next Round';
 
   public game: Game;
   public gameForm: FormGroup;
@@ -33,6 +55,9 @@ export class AppComponent {
   public user: Player         = new Player();
   public randomUser: Player   = new Player();
   public isLoading: boolean;
+  public deckImg: string;
+
+  public cardState = 'in';
 
   @ViewChild('messagesContainer') private messagesContainer: ElementRef;
 
@@ -44,8 +69,13 @@ export class AppComponent {
               public dialog: MatDialog) {
   }
 
+  toggle() {
+    this.cardState = 'out';
+  }
+
   ngOnInit() {
     this.isLoading = true;
+    this.deckImg = './assets/card-img-001.png';
     this.initPusher();
     this.gameForm = this.formBuilder.group({
       enemyId: ['', [Validators.required]],
@@ -227,6 +257,12 @@ export class AppComponent {
         this.isLoading = false;
       }
     });
+
+    this.pusherChannel.bind('client-pass-cards', (data) => {
+      if (data.isPass) {
+        this.cardState = 'in';
+      }
+    });
     return this;
   }
 
@@ -274,7 +310,6 @@ export class AppComponent {
         this.randomUser.playerId = 1;
         this.game                = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
 
-        console.log({ ...this.game });
         this.pusherChannel.trigger('client-start-game', {
           game: this.game
         });
@@ -290,6 +325,8 @@ export class AppComponent {
 
   public nextRound() {
     if (this.isValidPlayer()) {
+      this.cardState = 'in';
+      this.pusherChannel.trigger('client-pass-cards', {isPass: true});
       this.boardService.nextRound();
       this.pusherChannel.trigger('client-fire', {
         game: this.game

@@ -25,10 +25,11 @@
         <button mat-raised-button color="primary" *ngIf="!game" (click)="setRounds()">{{ playLabel}}</button>
         <button mat-raised-button color="accent" *ngIf="!!game" (click)="setRounds()">{{ newGameLabel }}</button>
       </div>
+
     </form>
 
     <ng-container *ngIf="!!game && game.players.length > 1">
-      <div class="normal-text">Card(s) left: {{ game.deck.length }}</div>
+      <div class="normal-text">Card(s) left: {{ game.deck.length }} {{cardState}}</div>
 
       <!-- PLAYER TALLY POINTS -->
       <div class="round-container" *ngIf="player < 2">
@@ -59,8 +60,12 @@
         <!--<label class="player-title">{{player === i ? user.username : randomUser.username}}</label>-->
         <label class="player-title">{{ p.username}}</label>
 
-        <div class="card-container">
-          <div class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn ? selectCard(p, index) : null">
+        <div class="card-container" [@listAnimation]="cardState">
+
+          <div class="deck-item" (click)="toggle()">
+            <img class="card-img" [src]="deckImg">
+          </div>
+          <div [@itemAnimation]="cardState" class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn && cardState === 'out' ? selectCard(p, index) : null">
             <!--<label *ngIf="player !== i && !game.isRoundOver && player < 2">???</label>-->
             <label *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1">{{ card.name }}</label>
             <img *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1" class="card-img" [src]="card.imgFront">
@@ -73,7 +78,7 @@
             Submit
           </button>
 
-          <button mat-raised-button color="primary" *ngIf="game.isRoundOver && !game.isGameOver" (click)="nextRound()">Next Round</button>
+          <button mat-raised-button color="primary" *ngIf="game.isRoundOver && !game.isGameOver" (click)="nextRound()">{{ nextRoundLabel }}</button>
         </ng-container>
       </div>
 
