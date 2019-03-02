@@ -1,7 +1,7 @@
-import { Component, ElementRef, ViewChild }   from '@angular/core';
-import { Player }                             from './models/player';
-import { MatDialog, MatSnackBar }             from '@angular/material';
-import { BoardService }                                               from './services/board.service';
+import { Component, ElementRef, ViewChild }                                      from '@angular/core';
+import { Player }                                                                from './models/player';
+import { MatDialog, MatSnackBar }                                                from '@angular/material';
+import { BoardService }                                                          from './services/board.service';
 import { FormBuilder, FormGroup, Validators }                                    from '@angular/forms';
 import { Game }                                                                  from './models/game';
 import { GameInfoComponent }                                                     from './modals/game-info/game-info.component';
@@ -13,9 +13,9 @@ import { animate, keyframes, query, stagger, state, style, transition, trigger }
   selector   : 'app-root',
   templateUrl: './app.component.html',
   styleUrls  : ['./app.component.scss'],
-  animations: [
+  animations : [
     trigger('listAnimation', [
-      state('out', style({opacity: 1 })),
+      state('out', style({ opacity: 1 })),
 
       transition('in => out', [
 
@@ -30,7 +30,7 @@ import { animate, keyframes, query, stagger, state, style, transition, trigger }
       ])
     ]),
     trigger('itemAnimation', [
-      state('in', style({opacity: 0}))
+      state('in', style({ opacity: 0 }))
     ]),
   ]
 })
@@ -38,10 +38,12 @@ export class AppComponent {
   pusherChannel: any;
 
   // Labels
-  public titleLabel: string   = 'Voting RPS';
-  public playLabel: string    = 'Play';
-  public newGameLabel: string = 'New Game';
+  public titleLabel: string     = 'Voting RPS';
+  public playLabel: string      = 'Play';
+  public newGameLabel: string   = 'New Game';
   public nextRoundLabel: string = 'Next Round';
+  public submitLabel: string    = 'Lock In';
+  public noCardsLabel: string    = 'No Cards';
 
   public game: Game;
   public gameForm: FormGroup;
@@ -56,8 +58,7 @@ export class AppComponent {
   public randomUser: Player   = new Player();
   public isLoading: boolean;
   public deckImg: string;
-
-  public cardState = 'in';
+  public cardState            = 'in';
 
   @ViewChild('messagesContainer') private messagesContainer: ElementRef;
 
@@ -75,7 +76,7 @@ export class AppComponent {
 
   ngOnInit() {
     this.isLoading = true;
-    this.deckImg = './assets/card-img-001.png';
+    this.deckImg   = './assets/card-img-001.png';
     this.initPusher();
     this.gameForm = this.formBuilder.group({
       enemyId: ['', [Validators.required]],
@@ -90,8 +91,16 @@ export class AppComponent {
     this.checkConnection();
   }
 
-  // initialise Pusher and bind to presence channel
-  private initPusher(): AppComponent {
+  ngOnDestroy() {
+    this.pusherChannel.unbind();
+  }
+
+  /**
+   * Initialize
+   *
+   * Initialize Pusher and bind to presence channel
+   */
+  private initPusher(): void {
 
     // findOrCreate unique channel ID
     let channelId = this.pusherService.getChannelId('id');
@@ -119,10 +128,37 @@ export class AppComponent {
     // handle error
     this.pusherChannel.bind('pusher:connection_failed', err => {
       this.isLoading = false;
-      const msg      = 'Could not connect. Check your wifi.';
-      this.openSnackBar(msg);
+      this.openSnackBar('Could not connect. Check your wifi.');
     });
 
+    // listen for successful connection to channel
+    this.pusherChannel.bind('pusher:subscription_succeeded', members => {
+      this.membersInfo = members;
+      this.members     = Object.keys(this.membersInfo.members);
+      this.members     = this.members.filter((p) => {
+        return p !== this.membersInfo.myID;
+      });
+
+      console.log('subscription_succeeded: ', members);
+
+      this.listenForChanges();
+      this.players = this.membersInfo.count;
+      if (this.players && this.membersInfo.myID) {
+        this.user.id       = this.membersInfo.myID;
+        this.user.playerId = this.player++;
+        // this.user.username = `Player ${Math.floor(Math.random() * 11) + 11}`;
+      }
+
+      this.isLoading = false;
+    });
+  }
+
+  /**
+   * Listen for changes
+   *
+   * Update the board object and other properties when event triggered
+   */
+  private listenForChanges(): void {
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
       this.isLoading = true;
@@ -149,68 +185,6 @@ export class AppComponent {
       this.isLoading = false;
     });
 
-    // listen for chat messages
-    this.pusherChannel.bind('client-chat', data => {
-      if (data.chat.length > 0 && this.messages.length !== data.chat.length) {
-        this.isLoading = true;
-        this.audioService.receiveMsgAudio();
-        this.messages = data.chat;
-        this.autoScroll();
-        this.isLoading = false;
-      }
-    });
-
-    // listen for successful connection to channel
-    this.pusherChannel.bind('pusher:subscription_succeeded', members => {
-      this.membersInfo = members;
-      this.members     = Object.keys(this.membersInfo.members);
-      this.members     = this.members.filter((p) => {
-        return p !== this.membersInfo.myID;
-      });
-
-      console.log('subscription_succeeded: ', members);
-
-      this.listenForChanges();
-      this.players = this.membersInfo.count;
-      if (this.players && this.membersInfo.myID) {
-        this.user.id       = this.membersInfo.myID;
-        this.user.playerId = this.player++;
-        // this.user.username = `Player ${Math.floor(Math.random() * 11) + 11}`;
-      }
-
-      // TODO: logic for selecting second player
-
-      this.isLoading = false;
-      // this.setPlayer(this.players);
-    });
-
-    // listen for players leaving
-    this.pusherChannel.bind('pusher:member_removed', member => {
-      if (this.game) {
-        const x = this.game.players.filter((p: Player) => {
-          return p.id === member.id;
-        });
-
-        if (x.length > 0) {
-          this.game.isGameOver = true;
-          const msg            = 'Enemy left. You win.';
-
-          this.openSnackBar(msg);
-        }
-      }
-      this.members = this.members.filter((p) => {
-        return p !== member.id;
-      });
-      this.players--;
-    });
-
-    return this;
-  }
-
-  // Listen for `client-fire` events.
-  // Update the board object and other properties when
-  // event triggered
-  private listenForChanges(): AppComponent {
     this.pusherChannel.bind('client-start-game', (data) => {
       if (!this.game) {
         this.isLoading = true;
@@ -263,10 +237,44 @@ export class AppComponent {
         this.cardState = 'in';
       }
     });
-    return this;
+
+    // listen for chat messages
+    this.pusherChannel.bind('client-chat', data => {
+      if (data.chat.length > 0 && this.messages.length !== data.chat.length) {
+        this.isLoading = true;
+        this.audioService.receiveMsgAudio();
+        this.messages = data.chat;
+        this.autoScroll();
+        this.isLoading = false;
+      }
+    });
+
+    // listen for players leaving
+    this.pusherChannel.bind('pusher:member_removed', member => {
+      if (this.game) {
+        const x = this.game.players.filter((p: Player) => {
+          return p.id === member.id;
+        });
+
+        if (x.length > 0) {
+          this.game.isGameOver = true;
+          this.openSnackBar('Enemy left. You win.');
+        }
+      }
+      this.members = this.members.filter((p) => {
+        return p !== member.id;
+      });
+      this.players--;
+    });
   }
 
-  public setRounds() {
+  /**
+   * Set Rounds
+   *
+   * Start the game with the selected user
+   * Display spectator mode for others
+   */
+  public setRounds(): void {
     if (this.gameForm.valid && this.players > 1) {
       if (this.game) {
         if (this.isValidPlayer()) {
@@ -277,7 +285,7 @@ export class AppComponent {
 
             this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, user, randomUser);
 
-            this.game.players[this.player].hand.filter( (c) => {
+            this.game.players[this.player].hand.filter((c) => {
               c.isFaceUp = true;
             });
 
@@ -287,7 +295,7 @@ export class AppComponent {
           } else {
             this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
 
-            this.game.players[this.player].hand.filter( (c) => {
+            this.game.players[this.player].hand.filter((c) => {
               c.isFaceUp = true;
             });
 
@@ -315,18 +323,22 @@ export class AppComponent {
         });
       }
     } else if (this.gameForm.valid && this.players === 1) {
-      const msg = 'Need 1 more player';
-      this.openSnackBar(msg);
+      this.openSnackBar('Need 1 more player');
     } else if (!this.gameForm.valid) {
-      const msg = 'Enter a valid number';
-      this.openSnackBar(msg);
+      this.openSnackBar('Enter a valid number');
     }
   }
 
-  public nextRound() {
+  /**
+   * Next Round
+   *
+   * Go to next round of the game
+   * Reset cardState
+   */
+  public nextRound(): void {
     if (this.isValidPlayer()) {
       this.cardState = 'in';
-      this.pusherChannel.trigger('client-pass-cards', {isPass: true});
+      this.pusherChannel.trigger('client-pass-cards', { isPass: true });
       this.boardService.nextRound();
       this.pusherChannel.trigger('client-fire', {
         game: this.game
@@ -336,7 +348,15 @@ export class AppComponent {
     }
   }
 
-  public selectCard(player: Player, index: number) {
+  /**
+   * Select Card
+   *
+   * Send temporary selected card to other player
+   *
+   * @param player
+   * @param index
+   */
+  public selectCard(player: Player, index: number): void {
     if (!this.game.isRoundOver) {
       if (this.isValidPlayer()) {
         this.boardService.selectCard(player, index);
@@ -352,18 +372,21 @@ export class AppComponent {
     }
   }
 
-  public submit() {
+  /**
+   * Submit Selected Card
+   *
+   * Set the user's turn to false and send confirmed card data to other player
+   */
+  public submit(): void {
     if (!this.game.isRoundOver) {
       this.game.players[this.player].isTurn = false;
-      this.game.players[this.player].hand.filter( (c) => {
+      this.game.players[this.player].hand.forEach((c) => {
         if (c.isSelected) {
           c.isFaceUp = true;
         }
       });
 
-      const msg = 'Locked in';
-
-      this.openSnackBar(msg);
+      this.openSnackBar('Locked in');
 
       this.pusherChannel.trigger('client-fire', {
         game: this.game
@@ -377,6 +400,11 @@ export class AppComponent {
     }
   }
 
+  /**
+   * Open Help/Settings
+   *
+   * Display popup for play instructions and settings
+   */
   public openHelpDialog(): void {
     const dialogRef = this.dialog.open(GameInfoComponent, {
       width: '20em',
@@ -399,40 +427,66 @@ export class AppComponent {
     });
   }
 
-  public sendChat() {
+  /**
+   * Send Chat
+   *
+   * Send the message to everyone
+   */
+  public sendChat(): void {
     if (this.chatForm.valid) {
       const id      = !!this.user.id ? this.user.id : 'Anon';
       const tempMsg = {
-        userId : id,
-        message: this.chatForm.controls['chatMessage'].value
+        userId  : id,
+        username: this.user.username,
+        message : this.chatForm.controls['chatMessage'].value
       };
       this.messages.push(tempMsg);
+
+      // start removing first message if message list reaches 200
+      if (this.messages.length > 200) {
+        this.messages.shift();
+      }
+
       this.chatForm.controls['chatMessage'].reset();
-      // this.chatForm.controls['chatMessage'].markAsPristine();
-      // this.chatForm.controls['chatMessage'].markAsUntouched();
-      // this.chatForm.controls['chatMessage'].clearValidators();
-      // this.chatForm.reset();
 
       this.autoScroll();
       this.pusherChannel.trigger('client-chat', {
         chat: this.messages
       });
-
     }
   }
 
-  public autoScroll() {
+  /**
+   * Auto Scroll
+   *
+   * Scroll to the bottom of the comment box
+   */
+  public autoScroll(): void {
     setTimeout((f) => {
       this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
     }, 100);
   }
 
-  private openSnackBar(msg: string) {
+  /**
+   * Snack Bar
+   *
+   * Displays a popup message for 2 seconds
+   *
+   * @param msg
+   */
+  private openSnackBar(msg: string): void {
     this.snackBar.open(msg, '', {
       duration: 2000,
     });
   }
 
+  /**
+   * Valid Player
+   *
+   * Check if user is a player
+   *
+   * @returns boolean
+   */
   private isValidPlayer(): boolean {
     if (this.game && this.game.players.length === 2) {
       return this.getUserFromGame('me').length > 0;
@@ -440,6 +494,15 @@ export class AppComponent {
     return false;
   }
 
+  /**
+   * Get User from Game
+   *
+   * Grab the correct user in the game
+   *
+   * @param user
+   *
+   * @returns Array<Player>
+   */
   private getUserFromGame(user: string): Array<Player> {
     if (user === 'me') {
       return this.game.players.filter((p) => {
@@ -452,23 +515,41 @@ export class AppComponent {
     }
   }
 
-
-  private changeToSpectator() {
+  /**
+   * Change to Spectator
+   *
+   * Change the user into a spectator
+   */
+  private changeToSpectator(): void {
     if (this.player < 2) {
       this.player = Math.floor(Math.random() * 1001) + 2;
     }
 
-    const msg = 'Spectating';
-    this.openSnackBar(msg);
+    this.openSnackBar('Spectating');
   }
 
-  private checkConnection() {
+  /**
+   * Check Connection
+   *
+   * Abort if user doesnt connect to channel in 10 seconds
+   */
+  private checkConnection(): void {
     setTimeout((f) => {
       if (this.players === 0) {
-        const msg = 'Connection failed. Make sure you have good connection.';
-        this.openSnackBar(msg);
+        this.openSnackBar('Connection failed. Make sure you have good connection.');
         this.isLoading = false;
       }
     }, 10000);
+  }
+
+  public calcDeckSize(): number {
+    let size = (this.game.deck.length / 2) + 3;
+    if (this.cardState === 'in') {
+      return size;
+    } else {
+      size -= 3;
+      return (size < 0) ? 0 : size;
+    }
+
   }
 }

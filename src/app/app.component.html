@@ -29,7 +29,7 @@
     </form>
 
     <ng-container *ngIf="!!game && game.players.length > 1">
-      <div class="normal-text">Card(s) left: {{ game.deck.length }} {{cardState}}</div>
+      <div class="normal-text">Card(s) left: {{ game.deck.length }}</div>
 
       <!-- PLAYER TALLY POINTS -->
       <div class="round-container" *ngIf="player < 2">
@@ -63,7 +63,9 @@
         <div class="card-container" [@listAnimation]="cardState">
 
           <div class="deck-item" (click)="toggle()">
-            <img class="card-img" [src]="deckImg">
+            <img class="card-img" [src]="deckImg" [ngClass]="{'empty-deck': calcDeckSize() === 0}">
+            <label *ngIf="calcDeckSize() > 0">{{ calcDeckSize() }}</label>
+            <label *ngIf="calcDeckSize() === 0">{{ noCardsLabel }}</label>
           </div>
           <div [@itemAnimation]="cardState" class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn && cardState === 'out' ? selectCard(p, index) : null">
             <!--<label *ngIf="player !== i && !game.isRoundOver && player < 2">???</label>-->
@@ -75,7 +77,7 @@
 
         <ng-container *ngIf="player == i">
           <button mat-raised-button color="primary" *ngIf="p.isSelected && !game.isRoundOver" [ngClass]="{'inactive': !p.isSelected}" (click)="p.isSelected && p.isTurn ? submit() : null">
-            Submit
+            {{ submitLabel }}
           </button>
 
           <button mat-raised-button color="primary" *ngIf="game.isRoundOver && !game.isGameOver" (click)="nextRound()">{{ nextRoundLabel }}</button>
@@ -102,7 +104,7 @@
     <div class="chat-container">
       <label>Chat</label>
       <div #messagesContainer class="messages-container" *ngIf="messages && messages.length > 0">
-        <div *ngFor="let item of messages">{{ item.userId }}: {{ item.message }}</div>
+        <div *ngFor="let item of messages">{{ item.username }}: {{ item.message }}</div>
       </div>
 
       <form [formGroup]="chatForm" class="form-container">
