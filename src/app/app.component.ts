@@ -43,7 +43,7 @@ export class AppComponent {
   public newGameLabel: string   = 'New Game';
   public nextRoundLabel: string = 'Next Round';
   public submitLabel: string    = 'Lock In';
-  public noCardsLabel: string    = 'No Cards';
+  public noCardsLabel: string   = 'No Cards';
 
   public game: Game;
   public gameForm: FormGroup;
@@ -134,9 +134,12 @@ export class AppComponent {
     // listen for successful connection to channel
     this.pusherChannel.bind('pusher:subscription_succeeded', members => {
       this.membersInfo = members;
-      this.members     = Object.keys(this.membersInfo.members);
-      this.members     = this.members.filter((p) => {
-        return p !== this.membersInfo.myID;
+      const keys       = Object.keys(this.membersInfo.members);
+
+      keys.forEach((k) => {
+        if (k !== this.membersInfo.myID) {
+          this.members.push({ id: k, info: { username: this.membersInfo.members[k].username } });
+        }
       });
 
       console.log('subscription_succeeded: ', members);
@@ -162,7 +165,7 @@ export class AppComponent {
     // listen for new players
     this.pusherChannel.bind('pusher:member_added', member => {
       this.isLoading = true;
-      this.members.push(member.id);
+      this.members.push(member);
       console.log('new player arrived', member);
 
 
@@ -266,6 +269,15 @@ export class AppComponent {
       });
       this.players--;
     });
+
+    // listen for players name change
+    this.pusherChannel.bind('client-update-name', member => {
+      for (const m of this.members) {
+        if (m.id === member.id) {
+          m.info.username = member.username;
+        }
+      }
+    });
   }
 
   /**
@@ -313,7 +325,7 @@ export class AppComponent {
         this.user.playerId = 0;
         this.player        = 0;
 
-        this.randomUser.id       = this.gameForm.controls['enemyId'].value;
+        this.randomUser.id       = this.gameForm.controls['enemyId'].value.id;
         this.randomUser.username = this.membersInfo.members[this.randomUser.id].username;
         this.randomUser.playerId = 1;
         this.game                = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
@@ -424,6 +436,7 @@ export class AppComponent {
           game: this.game
         });
       }
+      this.pusherChannel.trigger('client-update-name', this.user);
     });
   }
 
