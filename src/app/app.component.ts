@@ -188,6 +188,7 @@ export class AppComponent {
       this.isLoading = false;
     });
 
+    // listen for start game
     this.pusherChannel.bind('client-start-game', (data) => {
       if (!this.game) {
         this.isLoading = true;
@@ -227,6 +228,7 @@ export class AppComponent {
       }
     });
 
+    // listen for card selection
     this.pusherChannel.bind('client-select-card', (data) => {
       if (this.game) {
         this.isLoading = true;
@@ -235,6 +237,7 @@ export class AppComponent {
       }
     });
 
+    // listen for reset card state
     this.pusherChannel.bind('client-pass-cards', (data) => {
       if (data.isPass) {
         this.cardState = 'in';

@@ -23,28 +23,37 @@ export class AudioService {
     this.bgAudio.loop = true;
     this.bgAudio.volume = 0.01;
     this.bgAudio.play();
+
+    if (localStorage.getItem('isSound') === 'false') {
+      this.toggleIsAudioOn(false);
+    }
   }
 
-  public toggleIsAudioOn(isAudioOn: boolean) {
+  public toggleIsAudioOn(isAudioOn: boolean): void {
     this.isAudioOn = isAudioOn;
     this.bgAudio.muted = !isAudioOn;
+    if (!isAudioOn) {
+      localStorage.setItem('isSound', 'false');
+    } else {
+      localStorage.clear();
+    }
   }
 
   public getIsAudioOn(): boolean {
     return this.isAudioOn;
   }
 
-  public startAudio() {
+  public startAudio(): void {
     this.audio.src = this.startAudioSrc;
     this.playAudio();
   }
 
-  public receiveMsgAudio() {
+  public receiveMsgAudio(): void {
     this.audio.src = this.receiveMsgAudioSrc;
     this.playAudio();
   }
 
-  private playAudio() {
+  private playAudio(): void {
     if (this.isAudioOn) {
       this.audio.load();
       this.audio.volume = 0.1;
@@ -57,7 +66,7 @@ export class AudioService {
     this.audio     = new Audio();
     this.isAudioOn = true;
 
-    this.bgAudioSrc         = './assets/audio/bg.mp3';
+    this.bgAudioSrc         = './assets/audio/bg.wav';
     this.startAudioSrc      = './assets/audio/start.wav';
     this.receiveMsgAudioSrc = './assets/audio/receiveMsg.wav';
   }
