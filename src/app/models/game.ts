@@ -10,4 +10,5 @@ export class Game {
   isRoundOver: boolean;
   isGameOver: boolean;
   players: Array<Player> = [];
+  isSolo: boolean;
 }

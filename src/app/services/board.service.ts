@@ -43,7 +43,6 @@ export class BoardService {
       this.game.players[1].scores.push(2);
       this.game.roundResults.push(2);
     }
-    console.log(this.game.players);
   }
 
   public createDeck() {
@@ -51,10 +50,10 @@ export class BoardService {
 
     let count = 0;
     while (count < this.game.roundSize * 6) {
-      const tempCard = new Card();
-      tempCard.imgFront   = './assets/card-img-002.png';
-      tempCard.imgBack   = './assets/card-img-001.png';
-      const rng      = Math.floor(Math.random() * 3);
+      const tempCard    = new Card();
+      tempCard.imgFront = './assets/card-img-002.png';
+      tempCard.imgBack  = './assets/card-img-001.png';
+      const rng         = Math.floor(Math.random() * 3);
       switch (rng) {
         case 0:
           tempCard.name = 'ROCK';
@@ -158,8 +157,8 @@ export class BoardService {
     user1.isSelected = false;
     user1.wins       = 0;
 
-    const computer = new Player();
-    computer.username     = 'Computer';
+    const computer      = new Player();
+    computer.username   = 'Computer';
     computer.scores     = [];
     computer.isTurn     = true;
     computer.isSelected = false;
@@ -171,6 +170,7 @@ export class BoardService {
     this.game.isRoundOver = false;
     this.game.isGameOver  = false;
     this.game.players     = [user1, computer];
+    this.game.isSolo      = true;
 
     this.setRoundResults(this.game.roundSize);
     this.createDeck();

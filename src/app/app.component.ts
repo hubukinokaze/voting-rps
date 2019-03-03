@@ -142,7 +142,7 @@ export class AppComponent {
         }
       });
 
-      console.log('subscription_succeeded: ', members);
+      // console.log('subscription_succeeded: ', members);
 
       this.listenForChanges();
       this.players = this.membersInfo.count;
@@ -166,7 +166,7 @@ export class AppComponent {
     this.pusherChannel.bind('pusher:member_added', member => {
       this.isLoading = true;
       this.members.push(member);
-      console.log('new player arrived', member);
+      // console.log('new player arrived', member);
 
 
       this.pusherChannel.trigger('client-chat', {
@@ -292,6 +292,7 @@ export class AppComponent {
    * Display spectator mode for others
    */
   public setRounds(): void {
+    this.cardState = 'in';
     if (this.gameForm.valid && this.players > 1) {
       if (this.game) {
         if (this.isValidPlayer()) {
@@ -343,7 +344,7 @@ export class AppComponent {
           });
         }
       }
-    } else if (this.gameForm.valid && this.players === 1) {
+    } else if (this.gameForm.valid && (this.players === 1 || this.players === 0)) {
       if (this.gameForm.controls['enemyId'].value === 'computer') {
         this.startSoloGame();
       } else {
@@ -419,11 +420,22 @@ export class AppComponent {
 
       this.openSnackBar('Locked in');
 
-      this.pusherChannel.trigger('client-fire', {
-        game: this.game
-      });
+      if (!this.game.isSolo) {
+        this.pusherChannel.trigger('client-fire', {
+          game: this.game
+        });
 
-      if (!this.game.players[this.randomUser.playerId].isTurn) {
+        if (!this.game.players[this.randomUser.playerId].isTurn) {
+          const msg2 = this.boardService.submit(this.game);
+          this.game  = msg2.game;
+          this.openSnackBar(msg2.msg);
+        }
+      } else {
+        this.game.players[1].isTurn = false;
+        const index = Math.floor(Math.random() * 3);
+        this.boardService.selectCard(this.game.players[1], index);
+        this.game.players[1].hand[index].isFaceUp = true;
+
         const msg2 = this.boardService.submit(this.game);
         this.game  = msg2.game;
         this.openSnackBar(msg2.msg);
