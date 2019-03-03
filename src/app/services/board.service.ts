@@ -139,16 +139,21 @@ export class BoardService {
     if (this.game.deck.length === 0) {
       this.game.isGameOver = true;
     }
-    this.checkGameOver();
+    if (this.checkGameOver()) {
+      msg = `Game Over: ${msg}`;
+    }
     return { game: this.game, msg: msg };
   }
 
-  private checkGameOver() {
-    if (this.game.roundResults.filter(x => x === -1).length > this.game.roundSize / 2) {
+  private checkGameOver(): boolean {
+    if (this.game.players[0].scores.filter(x => x === -1).length > this.game.roundSize / 2) {
       this.game.isGameOver = true;
-    } else if (this.game.roundResults.filter(x => x === 1).length > this.game.roundSize / 2) {
+      return true;
+    } else if (this.game.players[0].scores.filter(x => x === 1).length > this.game.roundSize / 2) {
       this.game.isGameOver = true;
+      return true;
     }
+    return false;
   }
 
   public startSoloGame(roundSize: number, user1: Player): Game {

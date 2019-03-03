@@ -293,6 +293,7 @@ export class AppComponent {
    */
   public setRounds(): void {
     this.cardState = 'in';
+    this.pusherChannel.trigger('client-pass-cards', { isPass: true });
     if (this.gameForm.valid && this.players > 1) {
       if (this.game) {
         if (this.isValidPlayer()) {
