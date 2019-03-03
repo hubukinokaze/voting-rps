@@ -91,12 +91,6 @@ export class BoardService {
     player.hand.push(this.game.deck.pop());
     player.hand.push(this.game.deck.pop());
     player.hand.push(this.game.deck.pop());
-
-    // for (let i of [500, 1000, 1500]) {
-    //   setTimeout((f) => {
-    //     player.hand.push(this.deck.pop());
-    //   }, i);
-    // }
   }
 
   public selectCard(player: Player, index: number) {
@@ -156,5 +150,31 @@ export class BoardService {
     } else if (this.game.roundResults.filter(x => x === 1).length > this.game.roundSize / 2) {
       this.game.isGameOver = true;
     }
+  }
+
+  public startSoloGame(roundSize: number, user1: Player): Game {
+    user1.scores     = [];
+    user1.isTurn     = true;
+    user1.isSelected = false;
+    user1.wins       = 0;
+
+    const computer = new Player();
+    computer.username     = 'Computer';
+    computer.scores     = [];
+    computer.isTurn     = true;
+    computer.isSelected = false;
+    computer.wins       = 0;
+
+    this.game             = new Game();
+    this.game.roundNumber = 0;
+    this.game.roundSize   = roundSize;
+    this.game.isRoundOver = false;
+    this.game.isGameOver  = false;
+    this.game.players     = [user1, computer];
+
+    this.setRoundResults(this.game.roundSize);
+    this.createDeck();
+    this.nextRound();
+    return this.game;
   }
 }

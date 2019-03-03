@@ -21,7 +21,7 @@ export class AudioService {
     this.bgAudio.src = this.bgAudioSrc;
     this.bgAudio.load();
     this.bgAudio.loop = true;
-    this.bgAudio.volume = 0.01;
+    this.bgAudio.volume = 0.3;
     this.bgAudio.play();
 
     if (localStorage.getItem('isSound') === 'false') {

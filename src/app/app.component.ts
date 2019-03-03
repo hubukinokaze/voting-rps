@@ -203,6 +203,8 @@ export class AppComponent {
         this.isLoading = false;
       } else {
         this.game = data.game;
+        this.randomUser = this.getUserFromGame('randomUser')[0];
+        this.player     = this.getUserFromGame('me')[0].playerId;
       }
     });
 
@@ -328,20 +330,34 @@ export class AppComponent {
         this.user.playerId = 0;
         this.player        = 0;
 
-        this.randomUser.id       = this.gameForm.controls['enemyId'].value.id;
-        this.randomUser.username = this.membersInfo.members[this.randomUser.id].username;
-        this.randomUser.playerId = 1;
-        this.game                = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
+        if (this.gameForm.controls['enemyId'].value === 'computer') {
+          this.startSoloGame();
+        } else {
+          this.randomUser.id       = this.gameForm.controls['enemyId'].value.id;
+          this.randomUser.username = this.membersInfo.members[this.randomUser.id].username;
+          this.randomUser.playerId = 1;
+          this.game                = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
 
-        this.pusherChannel.trigger('client-start-game', {
-          game: this.game
-        });
+          this.pusherChannel.trigger('client-start-game', {
+            game: this.game
+          });
+        }
       }
     } else if (this.gameForm.valid && this.players === 1) {
-      this.openSnackBar('Need 1 more player');
+      if (this.gameForm.controls['enemyId'].value === 'computer') {
+        this.startSoloGame();
+      } else {
+        this.openSnackBar('Need 1 more player');
+      }
     } else if (!this.gameForm.valid) {
       this.openSnackBar('Enter a valid number');
     }
+  }
+
+  private startSoloGame() {
+    this.player = 0;
+    this.game = this.boardService.startSoloGame(this.gameForm.controls['rounds'].value, this.user);
+    this.openSnackBar('Playing against Computer');
   }
 
   /**
