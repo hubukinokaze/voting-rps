@@ -77,7 +77,7 @@
           </div>
         </div>
 
-        <ng-container *ngIf="player == i">
+        <ng-container *ngIf="player == i && !game.isGameOver">
           <button mat-raised-button color="primary" *ngIf="p.isSelected && !game.isRoundOver" [ngClass]="{'inactive': !p.isSelected}" (click)="p.isSelected && p.isTurn ? submit() : null">
             {{ submitLabel }}
           </button>

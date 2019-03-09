@@ -188,6 +188,13 @@ export class AppComponent {
       this.isLoading = false;
     });
 
+    // listen for quitters
+    this.pusherChannel.bind('client-quit-game', (data) => {
+      this.game.isGameOver = true;
+      this.game = null;
+      this.openSnackBar('Opponent left the game');
+    });
+
     // listen for start game
     this.pusherChannel.bind('client-start-game', (data) => {
       if (!this.game) {
@@ -202,10 +209,12 @@ export class AppComponent {
         }
         this.isLoading = false;
       } else {
-        this.game = data.game;
+        this.game       = data.game;
         this.randomUser = this.getUserFromGame('randomUser')[0];
         this.player     = this.getUserFromGame('me')[0].playerId;
       }
+
+      this.openSnackBar('New Game has started');
     });
 
     this.pusherChannel.bind('client-fire', (data) => {
@@ -269,6 +278,7 @@ export class AppComponent {
           this.openSnackBar('Enemy left. You win.');
         }
       }
+
       this.members = this.members.filter((p) => {
         return p !== member.id;
       });
@@ -295,7 +305,7 @@ export class AppComponent {
     this.cardState = 'in';
     this.pusherChannel.trigger('client-pass-cards', { isPass: true });
     if (this.gameForm.valid && this.players > 1) {
-      if (this.game) {
+      if (this.game && this.gameForm.controls['enemyId'].value !== 'computer') {
         if (this.isValidPlayer()) {
           this.audioService.startAudio();
           if (!this.game.isGameOver) {
@@ -325,6 +335,11 @@ export class AppComponent {
         } else if (!this.isValidPlayer()) {
           this.changeToSpectator();
         }
+      } else if (this.game && !this.game.isGameOver && !this.game.isSolo && this.gameForm.controls['enemyId'].value === 'computer') {
+        this.pusherChannel.trigger('client-quit-game', {
+          game: this.game
+        });
+        this.startSoloGame();
       } else {
         this.audioService.startAudio();
         this.user.id       = this.membersInfo.myID;
@@ -358,7 +373,7 @@ export class AppComponent {
 
   private startSoloGame() {
     this.player = 0;
-    this.game = this.boardService.startSoloGame(this.gameForm.controls['rounds'].value, this.user);
+    this.game   = this.boardService.startSoloGame(this.gameForm.controls['rounds'].value, this.user);
     this.openSnackBar('Playing against Computer');
   }
 
@@ -390,7 +405,7 @@ export class AppComponent {
    * @param index
    */
   public selectCard(player: Player, index: number): void {
-    if (!this.game.isRoundOver) {
+    if (!this.game.isRoundOver && !this.game.isGameOver) {
       if (this.isValidPlayer()) {
         this.boardService.selectCard(player, index);
 
@@ -433,7 +448,7 @@ export class AppComponent {
         }
       } else {
         this.game.players[1].isTurn = false;
-        const index = Math.floor(Math.random() * 3);
+        const index                 = Math.floor(Math.random() * 3);
         this.boardService.selectCard(this.game.players[1], index);
         this.game.players[1].hand[index].isFaceUp = true;
 
@@ -451,10 +466,10 @@ export class AppComponent {
    */
   public openHelpDialog(): void {
     const dialogRef = this.dialog.open(GameInfoComponent, {
-      width: '20em',
-      height: '25em',
+      width    : '20em',
+      height   : '38em',
       autoFocus: false,
-      data : this.user
+      data     : this.user
     });
 
     dialogRef.afterClosed().subscribe(result => {
