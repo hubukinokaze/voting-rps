@@ -111,7 +111,7 @@ export class AppComponent {
     this.channelId = channelId;
 
     // init pusher
-    this.user.username = `Player ${Math.floor(Math.random() * 11) + 11}`;
+    this.user.username = `Player ${Math.floor(Math.random() * 111) + 111}`;
     this.user.channel  = this.channelId;
     const pusher       = this.pusherService.getPusher(this.user);
 
@@ -452,6 +452,8 @@ export class AppComponent {
   public openHelpDialog(): void {
     const dialogRef = this.dialog.open(GameInfoComponent, {
       width: '20em',
+      height: '25em',
+      autoFocus: false,
       data : this.user
     });
 

@@ -1,7 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 @import url( 'https://fonts.googleapis.com/css?family=Roboto:400,700|Material+Icons');
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,500,600,700');
-@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "~@angular/material/theming";
+
+// Include non-theme styles for core.
+@include mat-core();
+
+// Define a theme.
+$primary: mat-palette($mat-indigo);
+$accent:  mat-palette($mat-amber, A200, A100, A400);
+
+$theme: mat-light-theme($primary, $accent);
+
+// Include all theme styles for the components.
+@include angular-material-theme($theme);
 
 html, body, app-root {
   height: 100%;
@@ -33,3 +45,9 @@ input[type=number] {
 .spacer {
   flex-grow: 1;
 }
+
+// font color
+.f-c-primary {
+  color: mat-color($primary, default);
+}
+

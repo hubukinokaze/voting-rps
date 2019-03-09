@@ -1,4 +1,4 @@
-<h3>
+<h3 class="f-c-primary">
   How to Play
 </h3>
 
@@ -16,7 +16,7 @@
   <mat-list-item role="listitem">Scissors > Paper</mat-list-item>
 </mat-list>
 
-<h3>
+<h3 class="f-c-primary">
   Settings
 </h3>
 
@@ -30,7 +30,7 @@
 
   <!-- AUDIO -->
   <mat-list-item role="listitem" class="settings-item">
-    <mat-icon>{{ !audioService.getIsAudioOn() ? audioOnIcon : audioOffIcon }}</mat-icon>
+    <mat-icon color="primary">{{ !audioService.getIsAudioOn() ? audioOnIcon : audioOffIcon }}</mat-icon>
     <span>{{ audioService.getIsAudioOn() ? audioOnLabel : audioOffLabel }}</span>
     <div class="spacer"></div>
     <mat-slide-toggle class="example-margin" color="primary" [checked]="audioService.getIsAudioOn()" (change)="audioService.toggleIsAudioOn($event.checked)"></mat-slide-toggle>

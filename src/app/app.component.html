@@ -4,7 +4,7 @@
 
   <div class="game-container">
     <div style="text-align:center">
-      <h1>
+      <h1 class="f-c-primary">
         {{ titleLabel }}
       </h1>
     </div>
@@ -51,6 +51,7 @@
 
       <!-- SPECTATOR TALLY POINTS -->
       <div class="round-spectator-container" *ngIf="player > 1">
+        <b>SPECTATOR</b>
         <div>Round: {{ game.roundNumber+1 }}</div>
         <div>{{ game.players[0].username }}: {{ game.players[0].wins || 0 }}</div>
         <div>{{ game.players[1].username }}: {{ game.players[1].wins || 0 }}</div>
@@ -103,7 +104,7 @@
 
     <!-- Start Chat -->
     <div class="chat-container">
-      <label>Chat</label>
+      <b class="f-c-primary">Chat</b>
       <div #messagesContainer class="messages-container" *ngIf="messages && messages.length > 0">
         <div *ngFor="let item of messages">{{ item.username }}: {{ item.message }}</div>
       </div>
@@ -123,8 +124,8 @@
     <div class="spacer"></div>
     <div class="online-players" [ngClass]="{'positive': players > 1}">Online: {{ players }}</div>
     <div class="online-players">Username: {{ user?.username || 'N/A' }}</div>
-    <div class="online-players">Player Id: {{ user?.id || 'N/A' }}</div>
-    <div class="online-players">Channel Id: {{ channelId }}</div>
+    <div class="online-players" [hidden]="true">Player Id: {{ user?.id || 'N/A' }}</div>
+    <div class="online-players" [hidden]="true">Channel Id: {{ channelId }}</div>
   </div>
 </div>
 
