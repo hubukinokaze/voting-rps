@@ -191,7 +191,7 @@ export class AppComponent {
     // listen for quitters
     this.pusherChannel.bind('client-quit-game', (data) => {
       this.game.isGameOver = true;
-      this.game = null;
+      this.game            = null;
       this.openSnackBar('Opponent left the game');
     });
 
@@ -210,10 +210,14 @@ export class AppComponent {
         this.isLoading = false;
       } else {
         this.game       = data.game;
+        if (!this.isValidPlayer()) {
+          this.changeToSpectator();
+        }
+
         this.randomUser = this.getUserFromGame('randomUser')[0];
         this.player     = this.getUserFromGame('me')[0].playerId;
       }
-
+      this.audioService.startAudio();
       this.openSnackBar('New Game has started');
     });
 
@@ -309,10 +313,14 @@ export class AppComponent {
         if (this.isValidPlayer()) {
           this.audioService.startAudio();
           if (!this.game.isGameOver) {
-            const user       = this.getUserFromGame('me')[0];
-            const randomUser = this.getUserFromGame('randomUser')[0];
+            this.user.playerId = 0;
+            this.player        = 0;
 
-            this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, user, randomUser);
+            this.randomUser.id       = this.gameForm.controls['enemyId'].value.id;
+            this.randomUser.username = this.membersInfo.members[this.randomUser.id].username;
+            this.randomUser.playerId = 1;
+
+            this.game = this.boardService.startGame(this.gameForm.controls['rounds'].value, this.user, this.randomUser);
 
             this.game.players[this.player].hand.filter((c) => {
               c.isFaceUp = true;
@@ -339,6 +347,7 @@ export class AppComponent {
         this.pusherChannel.trigger('client-quit-game', {
           game: this.game
         });
+        this.audioService.startAudio();
         this.startSoloGame();
       } else {
         this.audioService.startAudio();
