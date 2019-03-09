@@ -109,7 +109,7 @@ export class BoardService {
     const enemySelectedCard = this.game.players[1].hand.filter((x) => x.isSelected === true)[0].name;
 
     if (selectedCard === enemySelectedCard) {
-      msg                                                = 'You tied!';
+      msg                                                = 'Tied!';
       // this.game.roundResults[this.game.roundNumber] = 0;
       this.game.players[0].scores[this.game.roundNumber] = 0;
       this.game.players[1].scores[this.game.roundNumber] = 0;
@@ -134,7 +134,10 @@ export class BoardService {
       this.game.players[1].scores[this.game.roundNumber] = -1;
       this.game.players[0].wins += 1;
     }
-    this.game.roundNumber++;
+    if (this.game.roundNumber < this.game.roundSize - 1) {
+      this.game.roundNumber++;
+    }
+
     this.game.isRoundOver = true;
     if (this.game.deck.length === 0) {
       this.game.isGameOver = true;
@@ -142,7 +145,7 @@ export class BoardService {
     if (this.checkGameOver()) {
       msg = `Game Over: ${msg}`;
     }
-    return { game: this.game, msg: msg };
+    return {game: this.game, msg: msg};
   }
 
   private checkGameOver(): boolean {

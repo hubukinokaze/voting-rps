@@ -51,10 +51,11 @@
 
       <!-- SPECTATOR TALLY POINTS -->
       <div class="round-spectator-container" *ngIf="player > 1">
-        <b>SPECTATOR</b>
-        <div>Round: {{ game.roundNumber+1 }}</div>
+        <b class="f-c-primary">SPECTATOR</b>
+        <div>Round: {{ game.roundNumber+1 }} / {{ game.roundSize }}</div>
         <div>{{ game.players[0].username }}: {{ game.players[0].wins || 0 }}</div>
         <div>{{ game.players[1].username }}: {{ game.players[1].wins || 0 }}</div>
+        <b class="f-c-accent" *ngIf="game.isGameOver">{{ gameOverLabel }}</b>
       </div>
 
       <!-- BOARD -->

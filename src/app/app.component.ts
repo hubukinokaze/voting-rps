@@ -10,27 +10,27 @@ import { AudioService }                                                         
 import { animate, keyframes, query, stagger, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
-  selector   : 'app-root',
+  selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls  : ['./app.component.scss'],
-  animations : [
+  styleUrls: ['./app.component.scss'],
+  animations: [
     trigger('listAnimation', [
-      state('out', style({ opacity: 1 })),
+      state('out', style({opacity: 1})),
 
       transition('in => out', [
 
-        query('.card-item', style({ opacity: 0 }), { optional: true }),
+        query('.card-item', style({opacity: 0}), {optional: true}),
 
         query('.card-item', stagger('300ms', [
           animate('1s ease-in', keyframes([
-            style({ opacity: 0, transform: 'translateX(-100%)', offset: 0 }),
-            style({ opacity: .5, transform: 'translateX(35px)', offset: 0.3 }),
-            style({ opacity: 1, transform: 'translateX(0)', offset: 1.0 }),
-          ]))]), { optional: true })
+            style({opacity: 0, transform: 'translateX(-100%)', offset: 0}),
+            style({opacity: .5, transform: 'translateX(35px)', offset: 0.3}),
+            style({opacity: 1, transform: 'translateX(0)', offset: 1.0}),
+          ]))]), {optional: true})
       ])
     ]),
     trigger('itemAnimation', [
-      state('in', style({ opacity: 0 }))
+      state('in', style({opacity: 0}))
     ]),
   ]
 })
@@ -44,6 +44,7 @@ export class AppComponent {
   public nextRoundLabel: string = 'Next Round';
   public submitLabel: string    = 'Lock In';
   public noCardsLabel: string   = 'No Cards';
+  public gameOverLabel: string  = 'Game Over';
 
   public game: Game;
   public gameForm: FormGroup;
@@ -80,7 +81,7 @@ export class AppComponent {
     this.initPusher();
     this.gameForm = this.formBuilder.group({
       enemyId: ['', [Validators.required]],
-      rounds : ['', [Validators.required, Validators.pattern('^[1-9][0-9]*$'), Validators.max(10)]]
+      rounds: ['', [Validators.required, Validators.pattern('^[1-9][0-9]*$'), Validators.max(10)]]
     });
 
     this.chatForm = this.formBuilder.group({
@@ -138,7 +139,7 @@ export class AppComponent {
 
       keys.forEach((k) => {
         if (k !== this.membersInfo.myID) {
-          this.members.push({ id: k, info: { username: this.membersInfo.members[k].username } });
+          this.members.push({id: k, info: {username: this.membersInfo.members[k].username}});
         }
       });
 
@@ -202,16 +203,16 @@ export class AppComponent {
         this.game      = data.game;
 
         if (!this.isValidPlayer()) {
-          this.changeToSpectator();
+          this.changeToSpectator(true);
         } else {
           this.randomUser = this.getUserFromGame('randomUser')[0];
           this.player     = this.getUserFromGame('me')[0].playerId;
         }
         this.isLoading = false;
       } else {
-        this.game       = data.game;
+        this.game = data.game;
         if (!this.isValidPlayer()) {
-          this.changeToSpectator();
+          this.changeToSpectator(true);
         }
 
         this.randomUser = this.getUserFromGame('randomUser')[0];
@@ -222,16 +223,22 @@ export class AppComponent {
     });
 
     this.pusherChannel.bind('client-fire', (data) => {
+      this.isLoading = true;
       if (this.game) {
-        this.isLoading = true;
-        this.game      = data.game;
+        this.game = data.game;
         if (this.isValidPlayer()) {
+          // opponent chose card
           if (!this.game.players[this.player].isTurn) {
             const temp = this.boardService.submit(this.game);
             this.game  = temp.game;
             this.openSnackBar(temp.msg);
           }
         } else if (!this.isValidPlayer()) {
+          if (!this.game.players[0].isTurn && !this.game.players[1].isTurn) {
+            const temp = this.boardService.submit(this.game);
+            this.game  = temp.game;
+            this.openSnackBar(temp.msg);
+          }
           this.changeToSpectator();
         }
         this.isLoading = false;
@@ -241,6 +248,7 @@ export class AppComponent {
           this.changeToSpectator();
         }
       }
+      this.isLoading = false;
     });
 
     // listen for card selection
@@ -307,7 +315,7 @@ export class AppComponent {
    */
   public setRounds(): void {
     this.cardState = 'in';
-    this.pusherChannel.trigger('client-pass-cards', { isPass: true });
+    this.pusherChannel.trigger('client-pass-cards', {isPass: true});
     if (this.gameForm.valid && this.players > 1) {
       if (this.game && this.gameForm.controls['enemyId'].value !== 'computer') {
         if (this.isValidPlayer()) {
@@ -341,7 +349,7 @@ export class AppComponent {
             });
           }
         } else if (!this.isValidPlayer()) {
-          this.changeToSpectator();
+          this.changeToSpectator(true);
         }
       } else if (this.game && !this.game.isGameOver && !this.game.isSolo && this.gameForm.controls['enemyId'].value === 'computer') {
         this.pusherChannel.trigger('client-quit-game', {
@@ -395,7 +403,7 @@ export class AppComponent {
   public nextRound(): void {
     if (this.isValidPlayer()) {
       this.cardState = 'in';
-      this.pusherChannel.trigger('client-pass-cards', { isPass: true });
+      this.pusherChannel.trigger('client-pass-cards', {isPass: true});
       this.boardService.nextRound();
       this.pusherChannel.trigger('client-fire', {
         game: this.game
@@ -420,7 +428,7 @@ export class AppComponent {
 
         this.pusherChannel.trigger('client-select-card', {
           playerId: player.playerId,
-          index   : index
+          index: index
         });
       } else if (!this.isValidPlayer()) {
         this.changeToSpectator();
@@ -450,6 +458,7 @@ export class AppComponent {
           game: this.game
         });
 
+        // opponent already chose
         if (!this.game.players[this.randomUser.playerId].isTurn) {
           const msg2 = this.boardService.submit(this.game);
           this.game  = msg2.game;
@@ -475,10 +484,10 @@ export class AppComponent {
    */
   public openHelpDialog(): void {
     const dialogRef = this.dialog.open(GameInfoComponent, {
-      width    : '20em',
-      height   : '38em',
+      width: '20em',
+      height: '38em',
       autoFocus: false,
-      data     : this.user
+      data: this.user
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -507,9 +516,9 @@ export class AppComponent {
     if (this.chatForm.valid) {
       const id      = !!this.user.id ? this.user.id : 'Anon';
       const tempMsg = {
-        userId  : id,
+        userId: id,
         username: this.user.username,
-        message : this.chatForm.controls['chatMessage'].value
+        message: this.chatForm.controls['chatMessage'].value
       };
       this.messages.push(tempMsg);
 
@@ -591,12 +600,14 @@ export class AppComponent {
    *
    * Change the user into a spectator
    */
-  private changeToSpectator(): void {
+  private changeToSpectator(isMessageOn: boolean = false): void {
     if (this.player < 2) {
       this.player = Math.floor(Math.random() * 1001) + 2;
     }
 
-    this.openSnackBar('Spectating');
+    if (isMessageOn) {
+      this.openSnackBar('Spectating');
+    }
   }
 
   /**
