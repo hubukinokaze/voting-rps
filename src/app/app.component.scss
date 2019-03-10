@@ -111,6 +111,18 @@
       box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6), 0 6px 20px 0 rgba(0, 0, 0, 0.7);
 
     }
+
+    .rock {
+      color: #73642a;
+    }
+
+    .scissor {
+      color: #4f8757;
+    }
+
+    .paper {
+      color: #274b7e;
+    }
   }
 
   .card-item, .deck-item {
@@ -124,8 +136,9 @@
       text-align: center;
       border-radius: 50%;
       min-width: 4em;
-      font-weight: 500;
+      font-weight: 600;
       line-height: 2.5;
+      letter-spacing: -0.05em;
     }
   }
 
@@ -181,8 +194,16 @@
   min-height: 20em;
   margin: 2em 0;
 
+  &.player-board {
+    background-image: linear-gradient(to left, rgba(176,224,230,0), rgba(176,224,230,0.6));
+  }
+
   &:nth-child(odd) {
     border: 1.2em dashed powderblue;
+
+    &.player-board {
+      background-image: linear-gradient(to right, rgba(79,67,152,0), rgba(79,67,152,0.4));
+    }
   }
 
 }

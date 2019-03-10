@@ -31,7 +31,7 @@ import { animate, keyframes, query, stagger, state, style, transition, trigger }
     ]),
     trigger('itemAnimation', [
       state('in', style({opacity: 0}))
-    ]),
+    ])
   ]
 })
 export class AppComponent {
@@ -115,13 +115,6 @@ export class AppComponent {
     this.user.username = `Player ${Math.floor(Math.random() * 111) + 111}`;
     this.user.channel  = this.channelId;
     const pusher       = this.pusherService.getPusher(this.user);
-
-    // handle error
-    pusher.connection.bind('error', (err) => {
-      this.isLoading = false;
-      const msg      = 'Could not connect. Check your wifi.';
-      this.openSnackBar(msg);
-    });
 
     // subscribe to channel
     this.pusherChannel = pusher.subscribe(this.channelId);

@@ -59,7 +59,7 @@
       </div>
 
       <!-- BOARD -->
-      <div class="main-board-1" *ngFor="let p of game.players; let i = index">
+      <div class="main-board-1" [ngClass]="{'player-board': player === i}" *ngFor="let p of game.players; let i = index">
         <!--<label class="player-title">{{player === i ? user.username : randomUser.username}}</label>-->
         <label class="player-title">{{ p.username}}</label>
 
@@ -72,7 +72,8 @@
           </div>
           <div [@itemAnimation]="cardState" class="card-item" [ngClass]="{'active': card.isSelected}" *ngFor="let card of p.hand; let index = index" (click)="player === i && p.isTurn && cardState === 'out' ? selectCard(p, index) : null">
             <!--<label *ngIf="player !== i && !game.isRoundOver && player < 2">???</label>-->
-            <label *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1">{{ card.name }}</label>
+            <label *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1"
+                   [ngClass]="{'rock': card.name === 'ROCK', 'scissor': card.name === 'SCISSOR', 'paper': card.name === 'PAPER'}">{{ card.name }}</label>
             <img *ngIf="player === i || (card.isFaceUp && game.isRoundOver) || player > 1" class="card-img" [src]="card.imgFront">
             <img *ngIf="(player !== i && !card.isFaceUp && player < 2) || (card.isFaceUp && !game.isRoundOver && player !== i && player < 2)" class="card-img" [src]="card.imgBack">
           </div>
